@@ -70,11 +70,11 @@ TEST(Components, Remove) {
 	ASSERT_FALSE(componentmanager->HasComponent<TestComponent1>(entity1)) << "Entity had component after removing";
 }
 
-TEST(Components, AddToMany) {
+TEST(Components, AddToManyIndividually) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
-	const size_t numents = 30000;
+	const size_t numents = 10000;
 	EntityArray arr = entitymanager->CreateEntitites(numents);
 
 	size_t i = 1;
@@ -93,4 +93,120 @@ TEST(Components, AddToMany) {
 		ASSERT_GT(testVal, numents);
 		ASSERT_NE(0, testBigInt);
 	}
+}
+
+
+
+TEST(Components, RemoveFromManyIndividually) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+	const size_t numents = 10000;
+	EntityArray arr = entitymanager->CreateEntitites(numents);
+
+	size_t i = 1;
+	for (Entity e : arr) {
+		componentmanager->AddComponent<TestComponent2>(e).testBigint = i++;
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent1>(e));
+
+	}
+
+	for (Entity e : arr) {
+		componentmanager->AddComponent<TestComponent1>(e).testValue = i++;
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+
+	}
+
+	for (Entity e : arr) {
+		componentmanager->RemoveComponent<TestComponent1>(e);
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent1>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+	}
+
+	for (Entity e : arr) {
+		auto testBigInt = componentmanager->GetComponent<TestComponent2>(e).testBigint;
+		ASSERT_NE(0, testBigInt);
+	}
+}
+
+TEST(Components, MoveOne) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	Entity entity1 = entitymanager->CreateEntity();
+
+	EntityArchetype archetype = EntityArchetype(ComponentType::Get<TestComponent1>()).AddComponent(ComponentType::Get<TestComponent2>());
+
+	componentmanager->MoveToArchetype(entity1, archetype);
+
+	EXPECT_TRUE(componentmanager->HasComponent<TestComponent1>(entity1));
+	EXPECT_TRUE(componentmanager->HasComponent<TestComponent2>(entity1));
+
+	componentmanager->MoveToArchetype(entity1, EntityArchetype());
+
+	EXPECT_FALSE(componentmanager->HasComponent<TestComponent1>(entity1));
+	EXPECT_FALSE(componentmanager->HasComponent<TestComponent2>(entity1));
+
+}
+
+TEST(Components, MoveManyIndividually) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	const size_t numents = 10000;
+	EntityArray arr = entitymanager->CreateEntitites(numents);
+
+	EntityArchetype archetype0 = EntityArchetype();
+	EntityArchetype archetype1 = archetype0.AddComponent(ComponentType::Get<TestComponent1>());
+	EntityArchetype archetype2 = archetype0.AddComponent(ComponentType::Get<TestComponent2>());
+	EntityArchetype archetype12 = archetype1.AddComponent(ComponentType::Get<TestComponent2>());
+
+	size_t i = 1;
+	for (Entity e : arr) {
+		componentmanager->MoveToArchetype(e, archetype2);
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent1>(e));
+		componentmanager->GetComponent<TestComponent2>(e).testBigint = i;
+		componentmanager->GetComponent<TestComponent2>(e).testFloat = i/10.0f;
+		i++;
+	}
+
+	for (Entity e : arr) {
+		componentmanager->MoveToArchetype(e, archetype12);
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
+		componentmanager->GetComponent<TestComponent1>(e).testValue = i;
+		ASSERT_NE(componentmanager->GetComponent<TestComponent2>(e).testBigint, 0);
+		ASSERT_NE(componentmanager->GetComponent<TestComponent2>(e).testFloat, 0.0f);
+
+		i++;
+	}
+
+	for (Entity e : arr) {
+		componentmanager->MoveToArchetype(e, archetype1);
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
+
+		ASSERT_NE(componentmanager->GetComponent<TestComponent1>(e).testValue, 0);
+	}
+
+	for (Entity e : arr) {
+		componentmanager->MoveToArchetype(e, archetype12);
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
+
+		ASSERT_NE(componentmanager->GetComponent<TestComponent1>(e).testValue, 0);
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent2>(e).testBigint, 0);
+	}
+
+	for (Entity e : arr) {
+		componentmanager->MoveToArchetype(e, archetype0);
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent2>(e));
+		ASSERT_FALSE(componentmanager->HasComponent<TestComponent1>(e));
+	}
+
 }

@@ -107,12 +107,25 @@ class ComponentManager {
 	}
 
 	inline size_t ArchetypeRemoveComponent(const EntityArchetype& archetype, const ComponentType& component) {
-		EntityArchetype newArchetype = archetype.RemoveComponent(component);
-		type_hash newHash = newArchetype.ArchetypeHash();
+		type_hash newHash = archetype.ArchetypeHash() ^ component.type;
 
 		auto found = _archetypeHashIndices.find(newHash);
 		if (found == _archetypeHashIndices.end()) {
+			EntityArchetype newArchetype = archetype.RemoveComponent(component);
+
 			size_t idx = CreateNewArchetypeBlock(newArchetype);
+			return idx;
+		} else {
+			return found->second;
+		}
+	}
+
+	inline size_t FindOrCreateArchetypeBlock(const EntityArchetype& archetype) {
+		type_hash newHash = archetype.ArchetypeHash();
+
+		auto found = _archetypeHashIndices.find(newHash);
+		if (found == _archetypeHashIndices.end()) {
+			size_t idx = CreateNewArchetypeBlock(archetype);
 			return idx;
 		} else {
 			return found->second;
@@ -141,7 +154,7 @@ public:
 			_entityMap.resize(e.ID + 1);
 		}
 		ArchetypeBlockIndex idx = GetFreeBlockOf(empty);
-		_archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->AddEntity(e);
+		idx.elementIndex = _archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->AddEntity(e);
 		_entityMap[e.ID] = idx;
 	}
 
@@ -150,13 +163,14 @@ public:
 			_entityMap.resize(e.ID + 1);
 		}
 		ArchetypeBlockIndex idx = GetFreeBlockOf(archetype);
-		_archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->AddEntity(e);
+		idx.elementIndex = _archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->AddEntity(e);
 		_entityMap[e.ID] = idx;
 	}
 
 	template<class T>
-	inline T& AddComponentCopy(const Entity& e, const T& original) {
+	inline void AddComponentCopy(const Entity& e, const T& original) {
 		CHECK_T_IS_COMPONENT;
+		AddComponent<T>(e) = original;
 	}
 
 	template<class T>
@@ -172,11 +186,18 @@ public:
 			ComponentType::Get<T>());
 
 		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
+		
+		auto ob = GetMemoryBlock(oldBlock);
+		auto nb = GetMemoryBlock(newBlock);
+		newBlock.elementIndex = ob->CopyEntityTo(oldBlock.elementIndex, e, nb);
 
-		size_t idx = GetMemoryBlock(oldBlock)->MoveEntityTo(e, GetMemoryBlock(newBlock));
+		Entity removedEntity = ob->RemoveEntityMoveLast(oldBlock.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
+		}
 
 		_entityMap[e.ID] = newBlock;
-		return GetMemoryBlock(newBlock)->GetComponentArray<T>()[idx];
+		return GetMemoryBlock(newBlock)->GetComponentArray<T>()[newBlock.elementIndex];
 	}
 
 	template<class T>
@@ -192,9 +213,33 @@ public:
 			ComponentType::Get<T>());
 
 		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
+		auto ob = GetMemoryBlock(oldBlock);
+		auto nb = GetMemoryBlock(newBlock);
+		newBlock.elementIndex = ob->CopyEntityTo(oldBlock.elementIndex, e, nb);
 
-		GetMemoryBlock(oldBlock)->MoveEntityTo(e, GetMemoryBlock(newBlock));
+		Entity removedEntity = ob->RemoveEntityMoveLast(oldBlock.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
+		}
+		_entityMap[e.ID] = newBlock;
+	}
 
+	inline void MoveToArchetype(const Entity &e, const EntityArchetype& archetype) {
+		ArchetypeBlockIndex oldBlock = FindBlockIndexFor(e);
+
+		ArchetypeBlockIndex newBlock;
+
+		newBlock.archetypeIndex = FindOrCreateArchetypeBlock(archetype);
+
+		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
+		auto ob = GetMemoryBlock(oldBlock);
+		auto nb = GetMemoryBlock(newBlock);
+
+		newBlock.elementIndex = ob->CopyEntityTo(oldBlock.elementIndex, e, nb);
+		Entity removedEntity = ob->RemoveEntityMoveLast(oldBlock.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
+		}
 		_entityMap[e.ID] = newBlock;
 	}
 
@@ -202,12 +247,11 @@ public:
 	inline T& GetComponent(const Entity& e) {
 		CHECK_T_IS_COMPONENT;
 
-		ComponentMemoryBlock* memblock = FindComponentBlockFor(e);
-		if (memblock == nullptr) {
-			throw std::runtime_error("Trying to get component from entity with no components");
-		}
+		ArchetypeBlockIndex index = FindBlockIndexFor(e);
 
-		return memblock->GetComponent<T>(e);
+		return _archetypes[index.archetypeIndex]
+			.archetypeBlocks[index.blockIndex]
+			->GetComponent<T>(index.elementIndex);
 	}
 
 	template<class T>

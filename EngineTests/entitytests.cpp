@@ -111,3 +111,22 @@ TEST(EntityArchetypes, RemoveComponent) {
 	ASSERT_FALSE(newType.HasComponentType(type.type));
 	ASSERT_EQ(newType.ArchetypeHash(), 0);
 }
+
+TEST(EntityArchetypes, RemoveXORHash) {
+	ComponentType type1 = ComponentType::Get<TestComponent1>();
+	ComponentType type2 = ComponentType::Get<TestComponent2>();
+
+
+	EntityArchetype archetype(type1);
+	archetype = archetype.AddComponent(type2);
+
+
+
+	EntityArchetype newType = archetype.RemoveComponent(type2);
+
+	ASSERT_EQ(archetype.ArchetypeHash() ^ type2.type, newType.ArchetypeHash());
+
+	ASSERT_EQ(newType.ArchetypeHash(), type1.type);
+
+	ASSERT_EQ(newType.ArchetypeHash() ^ type1.type, 0);
+}

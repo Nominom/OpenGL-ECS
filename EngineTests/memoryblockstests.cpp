@@ -70,6 +70,8 @@ TEST(ComponentMemoryBlock, AddEntity) {
 	ASSERT_EQ(memblock.size(), 2);
 }
 
+
+
 TEST(ComponentMemoryBlock, RemoveEntityFromMiddle) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
@@ -96,7 +98,9 @@ TEST(ComponentMemoryBlock, RemoveEntityFromMiddle) {
 
 	ASSERT_EQ(test_val, memblock.GetComponentArray<TestComponent1>()[e2idx].testValue);
 
-	memblock.RemoveEntity(e1);
+	Entity moved = memblock.RemoveEntityMoveLast(e1idx);
+
+	ASSERT_EQ(moved, e2);
 
 	ASSERT_FALSE(memblock.HasEntity(e1));
 
@@ -140,7 +144,9 @@ TEST(ComponentMemoryBlock, RemoveLastEntity) {
 	ASSERT_EQ(carr[0].testValue, 2);
 	ASSERT_EQ(carr[1].testValue, 6);
 
-	memblock.RemoveEntity(e2);
+	Entity moved = memblock.RemoveEntityMoveLast(e2idx);
+
+	ASSERT_EQ(moved.ID, ENTITY_NULL_ID);
 
 	ASSERT_EQ(ents[0], e1);
 	ASSERT_EQ(ents[1], Entity());
@@ -175,7 +181,9 @@ TEST(ComponentMemoryBlock, RemoveOnlyEntity) {
 
 	ASSERT_TRUE(memblock.HasEntity(e1));
 
-	memblock.RemoveEntity(e1);
+	Entity moved = memblock.RemoveEntityMoveLast(e1idx);
+
+	ASSERT_EQ(moved.ID, ENTITY_NULL_ID);
 
 	ASSERT_FALSE(memblock.HasEntity(e1));
 
@@ -204,7 +212,7 @@ TEST(ComponentMemoryBlock, MoveEntity) {
 
 	Entity e1 = entitymanager->CreateEntity();
 
-	memblock1.AddEntity(e1);
+	size_t e1idx = memblock1.AddEntity(e1);
 	memblock1.GetComponent<TestComponent2>(e1).testBigint = 999;
 	memblock1.GetComponent<TestComponent2>(e1).testFloat = 0.5f;
 
@@ -221,7 +229,16 @@ TEST(ComponentMemoryBlock, MoveEntity) {
 	ASSERT_EQ(carr1[0].testFloat, 0.5f);
 	ASSERT_EQ(memblock1.size(), 1);
 
-	memblock1.MoveEntityTo(e1, &memblock2);
+	memblock1.CopyEntityTo(e1idx, e1, &memblock2);
+
+	ASSERT_TRUE(memblock1.HasEntity(e1));
+	ASSERT_EQ(ents1[0], e1);
+	ASSERT_EQ(ctarr1[0].testValue, 60);
+	ASSERT_EQ(carr1[0].testBigint, 999);
+	ASSERT_EQ(carr1[0].testFloat, 0.5f);
+	ASSERT_EQ(memblock1.size(), 1);
+
+	memblock1.RemoveEntityMoveLast(e1idx);
 
 	auto carr2 = memblock2.GetComponentArray<TestComponent2>();
 	auto ents2 = memblock2.GetEntityArray();
@@ -269,8 +286,9 @@ TEST(ComponentMemoryBlock, MoveMany) {
 	}
 	i = 0;
 	for (Entity e : arr) {
-		ASSERT_EQ(i, memblock1.MoveEntityTo(e, &memblock2));
+		ASSERT_EQ(i, memblock1.CopyEntityTo(memblock1.GetEntityIndex(e), e, &memblock2));
 		ASSERT_EQ(i, memblock2.GetComponent<TestComponent2>(e).testBigint);
 		i++;
 	}
 }
+

@@ -37,19 +37,14 @@ size_t ComponentMemoryBlock::AddEntity(const Entity & e) {
 	assert(e.ID != ENTITY_NULL_ID);
 
 	assert(_size < _maxSize);
-	entityIdx.emplace(e, _size);
 	GetEntityArray()[_size] = e;
 	return _size++; //Return old size and increment size by one 
 }
 
-void ComponentMemoryBlock::RemoveEntity(const Entity & e) {
-	assert(e.ID != ENTITY_NULL_ID);
+Entity ComponentMemoryBlock::RemoveEntityMoveLast(size_t eidx) {
+	assert(eidx < _size);
 
-	auto i = entityIdx.find(e);
-	assert(i != entityIdx.end());
-
-	size_t idx = i->second;
-	entityIdx.erase(i);
+	size_t idx = eidx;
 
 	Entity* entArr = GetEntityArray();
 
@@ -69,8 +64,6 @@ void ComponentMemoryBlock::RemoveEntity(const Entity & e) {
 		Entity e2 = entArr[lastIdx];
 		entArr[idx] = entArr[lastIdx];
 		entArr[lastIdx].ID = ENTITY_NULL_ID; //Change last to be null entity
-
-		entityIdx[e2] = idx; //update entity index register
 	} else {
 		for (auto locations : dataLocations) {
 			MemoryPtr mp = locations.second;
@@ -81,13 +74,22 @@ void ComponentMemoryBlock::RemoveEntity(const Entity & e) {
 	}
 
 	_size--;
+	if (_size == 0) {
+		return Entity();
+	} else {
+		return entArr[idx];
+	}
 }
 
-size_t ComponentMemoryBlock::MoveEntityTo(const Entity & e, ComponentMemoryBlock *memblock) {
+size_t ComponentMemoryBlock::CopyEntityTo(size_t eidx, const Entity& e, ComponentMemoryBlock *memblock) {
+	if (eidx >= _size) {
+		int num = 0;
+	}
+	assert(eidx < _size);
 	assert(e.ID != ENTITY_NULL_ID);
 
 	size_t newIdx = memblock->AddEntity(e); //Add entity to other memoryblock
-	size_t oldIdx = entityIdx[e];
+	size_t oldIdx = eidx;
 
 	//Move all data from src to dest
 	for (auto keyval : memblock->dataLocations) {
@@ -105,9 +107,6 @@ size_t ComponentMemoryBlock::MoveEntityTo(const Entity & e, ComponentMemoryBlock
 				(static_cast<char*>(src.ptr) + srcOffset), size);//copy data from old to new
 		}
 	}
-
-	RemoveEntity(e); //remove entity from this
-
 	return newIdx;
 }
 
