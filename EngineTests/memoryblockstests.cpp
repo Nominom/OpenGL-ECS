@@ -3,9 +3,9 @@
 
 
 TEST(ComponentMemoryBlock, Create) {
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock;
 	memblock.Initialize(archetype12);
@@ -33,9 +33,9 @@ TEST(ComponentMemoryBlock, AddEntity) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock;
 	memblock.Initialize(archetype12);
@@ -76,9 +76,9 @@ TEST(ComponentMemoryBlock, RemoveEntityFromMiddle) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock;
 	memblock.Initialize(archetype12);
@@ -119,9 +119,9 @@ TEST(ComponentMemoryBlock, RemoveLastEntity) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock;
 	memblock.Initialize(archetype12);
@@ -159,9 +159,9 @@ TEST(ComponentMemoryBlock, RemoveOnlyEntity) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock;
 	memblock.Initialize(archetype12);
@@ -197,15 +197,14 @@ TEST(ComponentMemoryBlock, MoveEntity) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock1;
 	memblock1.Initialize(archetype12);
 
-	EntityArchetype archetype2 = EntityArchetype() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype2 = EntityArchetype(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock2;
 	memblock2.Initialize(archetype2);
@@ -262,15 +261,14 @@ TEST(ComponentMemoryBlock, MoveMany) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 
-	EntityArchetype archetype12 = EntityArchetype() +
-		ComponentType::Get<TestComponent1>() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype12 = EntityArchetype()
+		.AddComponent(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock1;
 	memblock1.Initialize(archetype12);
 
-	EntityArchetype archetype2 = EntityArchetype() +
-		ComponentType::Get<TestComponent2>();
+	EntityArchetype archetype2 = EntityArchetype(ComponentType::Get<TestComponent2>());
 
 	ComponentMemoryBlock memblock2;
 	memblock2.Initialize(archetype2);

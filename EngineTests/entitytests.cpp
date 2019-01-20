@@ -130,3 +130,68 @@ TEST(EntityArchetypes, RemoveXORHash) {
 
 	ASSERT_EQ(newType.ArchetypeHash() ^ type1.type, 0);
 }
+
+
+TEST(EntityArchetypes, AddSharedComponent) {
+	EntityArchetype archetype;
+
+	TestSharedComponent1 shared;
+	TestSharedComponent1 shared2;
+
+	EntityArchetype archetype2 = archetype.AddSharedComponent(&shared);
+
+	ASSERT_NE(archetype2.ArchetypeHash(), 0);
+	ASSERT_NE(archetype2.ArchetypeHash(), archetype.ArchetypeHash());
+
+	EntityArchetype archetype3 = archetype.AddSharedComponent(&shared2);
+
+	ASSERT_NE(archetype2.ArchetypeHash(), archetype3.ArchetypeHash());
+}
+
+TEST(EntityArchetypes, GetSharedComponent) {
+	EntityArchetype archetype;
+
+	TestSharedComponent1 shared;
+	TestSharedComponent1 shared2;
+
+	EntityArchetype archetype2 = archetype.AddSharedComponent(&shared);
+
+	EntityArchetype archetype3 = archetype.AddSharedComponent(&shared2);
+
+	ASSERT_EQ(archetype2.GetSharedComponent<TestSharedComponent1>(), &shared);
+	ASSERT_EQ(archetype3.GetSharedComponent<TestSharedComponent1>(), &shared2);
+
+}
+
+TEST(EntityArchetypes, RemoveSharedComponent) {
+	EntityArchetype archetype(ComponentType::Get<TestComponent1>());
+
+	TestSharedComponent1 shared;
+	TestSharedComponent2 shared2;
+
+	EntityArchetype archetype2 = archetype.AddSharedComponent(&shared);
+
+	ASSERT_TRUE(archetype2.HasSharedComponentType(shared.ComponentTypeID));
+
+	EntityArchetype archetype3 = archetype2.AddSharedComponent(&shared2);
+
+	ASSERT_TRUE(archetype3.HasSharedComponentType(shared2.ComponentTypeID));
+
+
+	ASSERT_NE(archetype2.ArchetypeHash(), archetype.ArchetypeHash());
+	ASSERT_NE(archetype2.ArchetypeHash(), archetype3.ArchetypeHash());
+
+	EntityArchetype archetype4 = archetype3.RemoveSharedComponent(shared2.ComponentTypeID);
+
+	ASSERT_FALSE(archetype4.HasSharedComponentType(shared2.ComponentTypeID));
+
+
+	ASSERT_EQ(archetype4.ArchetypeHash(), archetype2.ArchetypeHash());
+
+	EntityArchetype archetype5 = archetype4.RemoveSharedComponent(shared.ComponentTypeID);
+
+	ASSERT_FALSE(archetype5.HasSharedComponentType(shared.ComponentTypeID));
+
+
+	ASSERT_EQ(archetype5.ArchetypeHash(), archetype.ArchetypeHash());
+}

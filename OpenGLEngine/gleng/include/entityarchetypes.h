@@ -26,10 +26,9 @@ public:
 
 };
 
-
 class EntityArchetype {
 	std::unordered_map<type_hash, size_t> componentTypesMemory;
-	std::unordered_multimap<type_hash, size_t> sharedComponents;
+	std::unordered_map<type_hash, void*> sharedComponents;
 	void GenerateHash();
 	type_hash _archetypeHash;
 public:
@@ -44,13 +43,18 @@ public:
 
 	inline EntityArchetype(const EntityArchetype &other) {
 		componentTypesMemory = std::unordered_map<type_hash, size_t>(other.componentTypesMemory);
-		sharedComponents = std::unordered_multimap<type_hash, size_t>(other.sharedComponents);
+		sharedComponents = std::unordered_map<type_hash, void*>(other.sharedComponents);
 		_archetypeHash = other._archetypeHash;
 	}
 
 	inline bool HasComponentType(type_hash componentType) const{
 		auto ptr = componentTypesMemory.find(componentType);
 		return ptr != componentTypesMemory.end();
+	}
+
+	inline bool HasSharedComponentType(type_hash sharedComponentType) {
+		auto ptr = sharedComponents.find(sharedComponentType);
+		return ptr != sharedComponents.end();
 	}
 
 	inline EntityArchetype AddComponent(const ComponentType& component) const{
@@ -72,11 +76,35 @@ public:
 		return newArch;
 	}
 
-	inline EntityArchetype operator + (ComponentType component) const {
+	template <class T>
+	inline EntityArchetype AddSharedComponent(T* component) const {
+		CHECK_T_IS_SHARED_COMPONENT;
 		EntityArchetype newArch(*this);
-		newArch.componentTypesMemory.emplace(component.type, component.memorySize);
+		newArch.sharedComponents.emplace(ISharedComponent<T>::ComponentTypeID, component);
 		newArch.GenerateHash();
 		return newArch;
+	}
+
+	inline EntityArchetype RemoveSharedComponent(type_hash sharedComponentType) const {
+		EntityArchetype newArch(*this);
+		auto found = newArch.sharedComponents.find(sharedComponentType);
+
+		if (found != newArch.sharedComponents.end()) {
+			newArch.sharedComponents.erase(found);
+		}
+
+		newArch.GenerateHash();
+		return newArch;
+	}
+	template <class T>
+	inline T* GetSharedComponent() const{
+		CHECK_T_IS_SHARED_COMPONENT;
+		auto found = sharedComponents.find(ISharedComponent<T>::ComponentTypeID);
+		if (found != sharedComponents.end()) {
+			return static_cast<T*>(found->second);
+		} else {
+			return nullptr;
+		}
 	}
 
 	inline const std::unordered_map<type_hash, size_t> &GetComponentTypes() const {

@@ -6,7 +6,7 @@ void EntityArchetype::GenerateHash() {
 	for (auto hash : componentTypesMemory) {
 		finalHash xor_eq hash.first;
 	}
-	std::hash<size_t> hasher;
+	static std::hash<void*> hasher;
 	for (auto pair : sharedComponents) {
 		size_t valueHash = hasher(pair.second);
 		finalHash xor_eq pair.first;

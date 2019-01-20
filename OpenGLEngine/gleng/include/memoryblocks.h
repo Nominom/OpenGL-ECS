@@ -8,68 +8,6 @@ struct MemoryPtr {
 	void* ptr;
 	size_t size;
 };
-/*
-class ComponentMemoryBlock {
-private:
-	size_t _size;
-	size_t _maxSize;
-public:
-	static const size_t datasize = KB(16);
-	uint8_t data[datasize];
-	std::unordered_map<Entity, size_t> entityIdx;
-	std::unordered_map<type_hash, MemoryPtr> dataLocations;
-
-	ComponentMemoryBlock() = default;
-	void Initialize(const EntityArchetype &type);
-
-	inline Entity* GetEntityArray() {
-		return reinterpret_cast<Entity*>(data);
-	}
-
-	template <class T>
-	inline T* GetComponentArray() {
-		CHECK_T_IS_COMPONENT;
-		type_hash componentTypeID = IComponent<T>::ComponentTypeID;
-
-		assert(dataLocations.find(componentTypeID) != dataLocations.end());
-		MemoryPtr ptr = dataLocations[componentTypeID];
-
-		return static_cast<T*>(ptr.ptr);
-	}
-
-	template <class T>
-	inline T& GetComponent(const Entity &e) {
-		CHECK_T_IS_COMPONENT;
-		assert(entityIdx.find(e) != entityIdx.end());
-		size_t idx = entityIdx[e];
-		return GetComponentArray<T>()[idx];
-	}
-
-	size_t AddEntity(const Entity &e);
-	void RemoveEntity(const Entity &e);
-	size_t MoveEntityTo(const Entity &e, ComponentMemoryBlock *memblock);
-
-	inline bool HasEntity(const Entity &e) const {
-		return entityIdx.find(e) != entityIdx.end();
-	}
-
-	inline size_t GetEntityIndex(const Entity& e) {
-		auto eidx = entityIdx.find(e);
-		assert(eidx != entityIdx.end());
-		return eidx->second;
-	}
-
-	inline size_t size() {
-		return _size;
-	}
-
-	inline size_t maxSize() {
-		return _maxSize;
-	}
-	ComponentMemoryBlock & operator =(ComponentMemoryBlock&&) = delete;
-	ComponentMemoryBlock & operator =(const ComponentMemoryBlock &) = delete;
-	ComponentMemoryBlock(const ComponentMemoryBlock &) = delete;
-};*/
 
 
 class ComponentMemoryBlock {
