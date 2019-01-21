@@ -112,9 +112,15 @@ size_t ComponentMemoryBlock::CopyEntityTo(size_t eidx, const Entity& e, Componen
 
 
 MemoryBlockAllocator::~MemoryBlockAllocator() {
-	for (ComponentMemoryBlock* block : allBlocks) {
-		delete(block);
+	Clear();
+}
+
+SharedComponentAllocator::~SharedComponentAllocator() {
+
+	for (auto keyval : sharedComponents) {
+		SharedComponentMemory memory = keyval.second;
+		delete(memory.memoryLocation);
 	}
 
-	allBlocks.clear();
+	sharedComponents.clear();
 }

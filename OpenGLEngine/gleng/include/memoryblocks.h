@@ -111,5 +111,52 @@ public:
 	MemoryBlockAllocator(MemoryBlockAllocator const&) = delete;
 	void operator=(MemoryBlockAllocator const&) = delete;
 
+	inline void Clear() {
+		for (ComponentMemoryBlock* block : allBlocks) {
+			delete(block);
+		}
+		allBlocks.clear();
+	}
+
 	~MemoryBlockAllocator();
+};
+
+struct SharedComponentMemory {
+	type_hash type;
+	size_t memorySize;
+	void* memoryLocation;
+};
+
+class SharedComponentAllocator {
+private:
+	std::unordered_multimap<type_hash, SharedComponentMemory> sharedComponents;
+
+	SharedComponentAllocator() = default;
+public:
+
+	template<class T>
+	inline T* Allocate() {
+		CHECK_T_IS_SHARED_COMPONENT;
+		SharedComponentMemory memory;
+		memory.type = ISharedComponent<T>::ComponentTypeID;
+		memory.memorySize = sizeof(T);
+
+		T* ptr = new T;
+
+		memory.memoryLocation = ptr;
+
+		sharedComponents.emplace(memory.type, memory);
+		return ptr;
+	}
+
+
+	static SharedComponentAllocator& instance() {
+		static SharedComponentAllocator instance;
+		return instance;
+	}
+
+	SharedComponentAllocator(SharedComponentAllocator const&) = delete;
+	void operator=(SharedComponentAllocator const&) = delete;
+
+	~SharedComponentAllocator();
 };

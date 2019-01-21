@@ -4,10 +4,9 @@
 
 class EntityManager {
 	std::vector<Entity> entities;
-
+	static uint32_t nextid;
 	static uint32_t NextID() {
-		static uint32_t next = 1;
-		return next++;
+		return nextid++;
 	}
 public:
 	Entity CreateEntity();
@@ -15,6 +14,5 @@ public:
 	void DestroyEntity(Entity entity);
 	void DestroyEntites(EntityArray entitities);
 	bool EntityExists(Entity entity) const;
-
-
+	void Clear();
 };

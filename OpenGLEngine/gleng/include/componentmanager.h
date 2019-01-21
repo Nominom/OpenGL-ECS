@@ -140,12 +140,42 @@ class ComponentManager {
 		return _archetypes[idx.archetypeIndex].archetype;
 	}
 
+	template<class T>
+	inline size_t ArchetypeAddSharedComponent(const EntityArchetype& archetype, T* component) {
+		CHECK_T_IS_SHARED_COMPONENT;
+
+		static std::hash<void*> hasher;
+		type_hash newHash = archetype.ArchetypeHash() ^ ISharedComponent<T>::ComponentTypeID ^ hasher(component);
+
+		auto found = _archetypeHashIndices.find(newHash);
+		if (found == _archetypeHashIndices.end()) {
+			EntityArchetype newArchetype = archetype.AddSharedComponent(component);
+
+			size_t idx = CreateNewArchetypeBlock(newArchetype);
+			return idx;
+		} else {
+			return found->second;
+		}
+	}
+
+	template<class T>
+	inline size_t ArchetypeRemoveSharedComponent(const EntityArchetype& archetype) {
+		CHECK_T_IS_SHARED_COMPONENT;
+		EntityArchetype newArchetype = archetype.RemoveSharedComponent(ISharedComponent<T>::ComponentTypeID);
+		type_hash newHash = newArchetype.ArchetypeHash();
+
+		auto found = _archetypeHashIndices.find(newHash);
+		if (found == _archetypeHashIndices.end()) {
+			size_t idx = CreateNewArchetypeBlock(newArchetype);
+			return idx;
+		} else {
+			return found->second;
+		}
+	}
+
 public:
 
-	inline ComponentManager() {
-		static const EntityArchetype empty;
-		CreateNewArchetypeBlock(empty);
-	}
+	ComponentManager() = default;
 
 	inline void AddEntity(const Entity& e) {
 		static const EntityArchetype empty;
@@ -181,6 +211,8 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(!HasComponent<T>(e));
+
 		newBlock.archetypeIndex = ArchetypeAddComponent(
 			GetArchetype(oldBlock), 
 			ComponentType::Get<T>());
@@ -207,6 +239,9 @@ public:
 		ArchetypeBlockIndex oldBlock = FindBlockIndexFor(e);
 
 		ArchetypeBlockIndex newBlock;
+
+		assert(HasComponent<T>(e));
+
 
 		newBlock.archetypeIndex = ArchetypeRemoveComponent(
 			GetArchetype(oldBlock),
@@ -260,5 +295,98 @@ public:
 		if (e.ID == ENTITY_NULL_ID) return false;
 		
 		return FindArchetypeFor(e).archetype.HasComponentType(IComponent<T>::ComponentTypeID);
+	}
+
+
+	//shared components
+	template<class T>
+	inline T* CreateSharedComponent() {
+		CHECK_T_IS_SHARED_COMPONENT;
+		static SharedComponentAllocator &allocator = SharedComponentAllocator::instance();
+		return allocator.Allocate<T>();
+	}
+
+	template<class T>
+	inline void AddSharedComponent(const Entity &e, T* component) {
+		CHECK_T_IS_SHARED_COMPONENT;
+
+		ArchetypeBlockIndex oldBlock = FindBlockIndexFor(e);
+
+		ArchetypeBlockIndex newBlock;
+
+		assert(!HasSharedComponent<T>(e));
+
+		newBlock.archetypeIndex = ArchetypeAddSharedComponent(GetArchetype(oldBlock), component);
+
+		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
+
+		auto ob = GetMemoryBlock(oldBlock);
+		auto nb = GetMemoryBlock(newBlock);
+		newBlock.elementIndex = ob->CopyEntityTo(oldBlock.elementIndex, e, nb);
+
+		Entity removedEntity = ob->RemoveEntityMoveLast(oldBlock.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
+		}
+
+		_entityMap[e.ID] = newBlock;
+	}
+
+	template<class T>
+	inline void RemoveSharedComponent(const Entity &e) {
+		CHECK_T_IS_SHARED_COMPONENT;
+
+		ArchetypeBlockIndex oldBlock = FindBlockIndexFor(e);
+
+		ArchetypeBlockIndex newBlock;
+
+		assert(HasSharedComponent<T>(e));
+
+		newBlock.archetypeIndex = ArchetypeRemoveSharedComponent<T>(GetArchetype(oldBlock));
+
+		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
+
+		auto ob = GetMemoryBlock(oldBlock);
+		auto nb = GetMemoryBlock(newBlock);
+		newBlock.elementIndex = ob->CopyEntityTo(oldBlock.elementIndex, e, nb);
+
+		Entity removedEntity = ob->RemoveEntityMoveLast(oldBlock.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
+		}
+
+		_entityMap[e.ID] = newBlock;
+	}
+
+	template<class T>
+	inline T* GetSharedComponent(const Entity &e) {
+		CHECK_T_IS_SHARED_COMPONENT;
+		T* ptr = FindArchetypeFor(e).archetype.GetSharedComponent<T>();
+		assert(ptr != nullptr);
+		return ptr;
+	}
+
+	template<class T>
+	inline bool HasSharedComponent(const Entity &e) {
+		CHECK_T_IS_SHARED_COMPONENT;
+		return FindArchetypeFor(e).archetype.HasSharedComponentType(ISharedComponent<T>::ComponentTypeID);
+	}
+
+	inline std::vector<ComponentMemoryBlock*> GetMemoryBlocks(const ComponentFilter &filter) {
+		std::vector<ComponentMemoryBlock*> result;
+		for (auto atype : _archetypes) {
+			if (filter.Matches(atype.archetype)) {
+				for (ComponentMemoryBlock *block : atype.archetypeBlocks) {
+					result.push_back(block);
+				}
+			}
+		}
+		return result;
+	}
+
+	inline void Clear() {
+		_archetypes.clear();
+		_entityMap.clear();
+		_archetypeHashIndices.clear();
 	}
 };

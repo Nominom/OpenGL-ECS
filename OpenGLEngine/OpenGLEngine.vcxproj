@@ -123,15 +123,19 @@
     <ClCompile Include="gleng\src\entitymanager.cpp" />
     <ClCompile Include="gleng\src\main.cpp" />
     <ClCompile Include="gleng\src\memoryblocks.cpp" />
+    <ClCompile Include="gleng\src\system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gleng\include\component.h" />
+    <ClInclude Include="gleng\include\componentiterator.h" />
     <ClInclude Include="gleng\include\componentmanager.h" />
     <ClInclude Include="gleng\include\entity.h" />
     <ClInclude Include="gleng\include\entityarchetypes.h" />
     <ClInclude Include="gleng\include\entitymanager.h" />
     <ClInclude Include="gleng\include\gleng.h" />
     <ClInclude Include="gleng\include\memoryblocks.h" />
+    <ClInclude Include="gleng\include\system.h" />
+    <ClInclude Include="gleng\include\systemmanager.h" />
     <ClInclude Include="gleng\include\util.h" />
     <ClInclude Include="gleng\include\world.h" />
   </ItemGroup>

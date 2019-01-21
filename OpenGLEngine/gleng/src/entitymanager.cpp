@@ -1,6 +1,8 @@
 #include "..\include\entitymanager.h"
 #include "../include/world.h"
 
+uint32_t EntityManager::nextid = 1;
+
 Entity EntityManager::CreateEntity() {
 	Entity entity;
 	entity.ID = EntityManager::NextID();
@@ -26,4 +28,9 @@ EntityArray EntityManager::CreateEntitites(size_t number) {
 	}
 	
 	return arr;
+}
+
+void EntityManager::Clear() {
+	nextid = 1;
+	entities.clear();
 }

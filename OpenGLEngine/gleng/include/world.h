@@ -1,7 +1,8 @@
 #pragma once
 #include "entitymanager.h"
 #include "componentmanager.h"
-
+#include "system.h"
+#include "systemmanager.h"
 
 class World {
 public:
@@ -15,5 +16,15 @@ public:
 		return &manager;
 	}
 
-	static void Setup(){}
+	static SystemManager* GetSystemManager() {
+		static SystemManager manager;
+		return &manager;
+	}
+
+	static void Setup(){
+		GetEntityManager()->Clear();
+		GetComponentManager()->Clear();
+		GetSystemManager()->Clear();
+		MemoryBlockAllocator::instance().Clear();
+	}
 };

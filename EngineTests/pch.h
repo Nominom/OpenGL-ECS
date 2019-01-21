@@ -18,9 +18,11 @@ struct TestComponent2 : IComponent<TestComponent2> {
 };
 
 struct TestSharedComponent1 : ISharedComponent<TestSharedComponent1> {
-
+	char testArr[100];
+	int testInt;
 };
 
 struct TestSharedComponent2 : ISharedComponent<TestSharedComponent2> {
-
+	std::string testString;
+	int testInt;
 };
