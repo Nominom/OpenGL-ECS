@@ -74,7 +74,7 @@ TEST(Components, AddToManyIndividually) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
-	const size_t numents = 10000;
+	const size_t numents = 3000;
 	EntityArray arr = entitymanager->CreateEntitites(numents);
 
 	size_t i = 1;
@@ -101,7 +101,7 @@ TEST(Components, RemoveFromManyIndividually) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
-	const size_t numents = 10000;
+	const size_t numents = 3000;
 	EntityArray arr = entitymanager->CreateEntitites(numents);
 
 	size_t i = 1;
@@ -157,7 +157,7 @@ TEST(Components, MoveManyIndividually) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
-	const size_t numents = 10000;
+	const size_t numents = 3000;
 	EntityArray arr = entitymanager->CreateEntitites(numents);
 
 	EntityArchetype archetype0 = EntityArchetype();

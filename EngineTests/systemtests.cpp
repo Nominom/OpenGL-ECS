@@ -18,6 +18,18 @@ public:
 
 };
 
+class TestSystem2 : public IComponentSystem<TestComponent1> {
+public:
+	virtual void DoWork(const ComponentDataBlockArray<TestComponent1> &components) {
+		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
+
+		for (size_t i = 0; i < components.size(); i++) {
+			data1[i].testValue++;
+		}
+	}
+
+};
+
 
 TEST(ComponentSystems, DoWork) {
 	World::Setup();
@@ -72,6 +84,8 @@ TEST(ComponentSystems, RegisterSystem) {
 		EntityArchetype(ComponentType::Get<TestComponent1>())
 		.AddComponent(ComponentType::Get<TestComponent2>());
 
+	
+
 	EntityArray arr = entitymanager->CreateEntitites(1000);
 
 	for (Entity e : arr) {
@@ -80,12 +94,62 @@ TEST(ComponentSystems, RegisterSystem) {
 
 	systemmanager->RegisterSystem(new TestSystem());
 
-	for (int i = 0; i < 10; i++) {
+	const int numUpdates = 10;
+
+	for (int i = 0; i < numUpdates; i++) {
 		systemmanager->Update(componentmanager, 0.5);
 	}
 
 	for (Entity e : arr) {
-		ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, 10);
-		ASSERT_EQ(componentmanager->GetComponent<TestComponent2>(e).testBigint, 10);
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent2>(e).testBigint, numUpdates);
 	}
+}
+
+
+TEST(ComponentSystems, MultipleSystems) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+	SystemManager *systemmanager = World::GetSystemManager();
+
+	EntityArchetype archetype12 =
+		EntityArchetype(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
+
+	EntityArchetype archetype1 =
+		EntityArchetype(ComponentType::Get<TestComponent1>());
+
+
+
+	EntityArray arr12 = entitymanager->CreateEntitites(1000);
+
+	for (Entity e : arr12) {
+		componentmanager->MoveToArchetype(e, archetype12);
+	}
+
+	EntityArray arr1 = entitymanager->CreateEntitites(1000);
+
+	for (Entity e : arr1) {
+		componentmanager->MoveToArchetype(e, archetype1);
+	}
+
+	systemmanager->RegisterSystem(new TestSystem());
+	systemmanager->RegisterSystem(new TestSystem2());
+
+	const int numUpdates = 10;
+
+	for (int i = 0; i < numUpdates; i++) {
+		systemmanager->Update(componentmanager, 0.5);
+	}
+
+	for (Entity e : arr12) {
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates * 2);
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent2>(e).testBigint, numUpdates);
+	}
+
+	for (Entity e : arr1) {
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
+	}
+	
 }
