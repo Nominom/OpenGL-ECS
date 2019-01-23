@@ -18,9 +18,10 @@ public:
 	static const size_t datasize = KB(16);
 	uint8_t data[datasize];
 	std::unordered_map<type_hash, MemoryPtr> dataLocations;
+	EntityArchetype type;
 
 	ComponentMemoryBlock() = default;
-	void Initialize(const EntityArchetype &type);
+	void Initialize(const EntityArchetype &);
 
 	inline Entity* GetEntityArray() {
 		return reinterpret_cast<Entity*>(data);

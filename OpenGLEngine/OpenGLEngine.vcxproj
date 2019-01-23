@@ -23,6 +23,7 @@
     <ProjectGuid>{9DF08A35-5CA6-4E7D-962F-8105D14B2695}</ProjectGuid>
     <RootNamespace>OpenGLEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>OpenGLEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -374,7 +374,7 @@ public:
 
 	inline std::vector<ComponentMemoryBlock*> GetMemoryBlocks(const ComponentFilter &filter) {
 		std::vector<ComponentMemoryBlock*> result;
-		for (auto atype : _archetypes) {
+		for (const EntityArchetypeBlock &atype : _archetypes) {
 			if (filter.Matches(atype.archetype)) {
 				for (ComponentMemoryBlock *block : atype.archetypeBlocks) {
 					result.push_back(block);

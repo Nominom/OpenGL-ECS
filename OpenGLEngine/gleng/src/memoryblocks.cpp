@@ -2,6 +2,8 @@
 
 
 void ComponentMemoryBlock::Initialize(const EntityArchetype & type) {
+	this->type = type;
+
 	size_t componentSizeCombined = 0;
 
 	//space for entity array

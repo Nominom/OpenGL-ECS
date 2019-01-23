@@ -52,7 +52,7 @@ public:
 		return ptr != componentTypesMemory.end();
 	}
 
-	inline bool HasSharedComponentType(type_hash sharedComponentType) {
+	inline bool HasSharedComponentType(type_hash sharedComponentType) const{
 		auto ptr = sharedComponents.find(sharedComponentType);
 		return ptr != sharedComponents.end();
 	}

@@ -23,7 +23,8 @@ public:
 
 	inline SystemDataInjector(IComponentSystem<Args...> *s) {
 		this->system = s;
-		auto _ = { filter.Include<Args>()... };
+		filter = s->GetFilter();
+		//auto _ = { filter.Include<Args>()... };
 	}
 
 	inline virtual ~SystemDataInjector() {
