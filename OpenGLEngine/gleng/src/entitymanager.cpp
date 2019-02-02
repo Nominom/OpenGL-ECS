@@ -30,6 +30,33 @@ EntityArray EntityManager::CreateEntitites(size_t number) {
 	return arr;
 }
 
+Entity EntityManager::CreateEntity(const EntityArchetype &archetype) {
+	Entity entity;
+	entity.ID = EntityManager::NextID();
+
+	World::GetComponentManager()->AddEntity(entity, archetype);
+	return entity;
+}
+
+EntityArray EntityManager::CreateEntitites(const EntityArchetype &archetype, size_t number) {
+	EntityArray arr;
+	arr.size = number;
+
+	if (number > 0) {
+		size_t oldSize = entities.size();
+		size_t newSize = oldSize + number;
+		entities.resize(newSize);
+		for (int i = oldSize; i < newSize; i++) {
+			entities[i].ID = EntityManager::NextID();
+			World::GetComponentManager()->AddEntity(entities[i], archetype);
+		}
+		arr.data = std::shared_ptr<Entity[]>(new Entity[number]);
+		std::memcpy(arr.data.get(), &entities[oldSize], number * sizeof(Entity));
+	}
+
+	return arr;
+}
+
 void EntityManager::Clear() {
 	nextid = 1;
 	entities.clear();

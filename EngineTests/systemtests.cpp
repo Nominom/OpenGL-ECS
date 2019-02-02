@@ -4,7 +4,7 @@
 
 class TestSystem : public IComponentSystem<TestComponent1, TestComponent2> {
 public:
-	virtual void DoWork(const ComponentDataBlockArray<TestComponent1, TestComponent2> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestComponent2> &components) {
 		ComponentDataIterator<TestComponent1> data1= components.Get<TestComponent1>();
 		ComponentDataIterator<TestComponent2> data2 = components.Get<TestComponent2>();
 		EntityIterator entities = components.GetEntities();
@@ -12,6 +12,7 @@ public:
 		for (size_t i = 0; i < components.size(); i++) {
 			data1[i].testValue++;
 			data2[i].testBigint++;
+			data2[i].testFloat += deltaTime;
 			data2.begin();
 			//data2.GetSharedComponent();
 			auto id = entities[i].ID;
@@ -22,7 +23,7 @@ public:
 
 class TestSystem2 : public IComponentSystem<TestComponent1> {
 public:
-	virtual void DoWork(const ComponentDataBlockArray<TestComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 
 		for (size_t i = 0; i < components.size(); i++) {
@@ -35,7 +36,7 @@ public:
 
 class TestSystem3 : public IComponentSystem<TestComponent1, TestSharedComponent1> {
 public:
-	virtual void DoWork(const ComponentDataBlockArray<TestComponent1, TestSharedComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestSharedComponent1> &components) {
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 		ComponentDataIterator<TestSharedComponent1> data2 = components.Get<TestSharedComponent1>();
 
@@ -50,7 +51,7 @@ public:
 
 class TestSystem4 : public IComponentSystem<TestComponent1> {
 public:
-	virtual void DoWork(const ComponentDataBlockArray<TestComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
 
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 
@@ -63,6 +64,7 @@ public:
 		ComponentFilter filter;
 		filter.Include<TestComponent1>();
 		filter.Exclude<TestComponent2>();
+		filter.Exclude<TestSharedComponent2>();
 		return filter;
 	}
 };
@@ -89,23 +91,30 @@ TEST(ComponentSystems, DoWork) {
 	memblock.AddEntity(e3);
 	memblock.AddEntity(e4);
 
-	ComponentDataBlockArray<TestComponent1, TestComponent2> datablock(&memblock);
+	ComponentDatablock<TestComponent1, TestComponent2> datablock(&memblock);
 
 	TestSystem system;
 	
-	system.DoWork(datablock);
+	system.DoWork(0.5, datablock);
 
 	ASSERT_EQ(memblock.GetComponent<TestComponent1>(e1).testValue, 1);
 	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e1).testBigint, 1);
+	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e1).testFloat, 0.5f);
 
 	ASSERT_EQ(memblock.GetComponent<TestComponent1>(e2).testValue, 1);
 	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e2).testBigint, 1);
+	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e2).testFloat, 0.5f);
+
 
 	ASSERT_EQ(memblock.GetComponent<TestComponent1>(e3).testValue, 1);
 	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e3).testBigint, 1);
+	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e3).testFloat, 0.5f);
+
 
 	ASSERT_EQ(memblock.GetComponent<TestComponent1>(e4).testValue, 1);
 	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e4).testBigint, 1);
+	ASSERT_EQ(memblock.GetComponent<TestComponent2>(e4).testFloat, 0.5f);
+
 
 }
 
@@ -129,7 +138,7 @@ TEST(ComponentSystems, RegisterSystem) {
 		componentmanager->MoveToArchetype(e, archetype);
 	}
 
-	systemmanager->RegisterSystem(new TestSystem());
+	systemmanager->RegisterComponentSystem(new TestSystem());
 
 	const int numUpdates = 10;
 
@@ -171,8 +180,8 @@ TEST(ComponentSystems, MultipleSystems) {
 		componentmanager->MoveToArchetype(e, archetype1);
 	}
 
-	systemmanager->RegisterSystem(new TestSystem());
-	systemmanager->RegisterSystem(new TestSystem2());
+	systemmanager->RegisterComponentSystem(new TestSystem());
+	systemmanager->RegisterComponentSystem(new TestSystem2());
 
 	const int numUpdates = 10;
 
@@ -207,15 +216,15 @@ TEST(ComponentSystems, MultipleSystems) {
 	EntityArchetype archetype =
 		EntityArchetype(ComponentType::Get<TestComponent1>()).AddSharedComponent(&shared1);
 
-	EntityArray arr = entitymanager->CreateEntitites(5000);
+	EntityArray arr = entitymanager->CreateEntitites(4000);
 
 	for (Entity e : arr) {
 		componentmanager->MoveToArchetype(e, archetype);
 	}
 
-	systemmanager->RegisterSystem(new TestSystem3());
+	systemmanager->RegisterComponentSystem(new TestSystem3());
 
-	const int numUpdates = 10;
+	const int numUpdates = 100;
 
 	for (int i = 0; i < numUpdates; i++) {
 		systemmanager->Update(componentmanager, 0.5);
@@ -235,28 +244,36 @@ TEST(ComponentSystems, MultipleSystems) {
 	 ComponentManager *componentmanager = World::GetComponentManager();
 	 SystemManager *systemmanager = World::GetSystemManager();
 
+	 TestSharedComponent2 shared2;
+	 TestSharedComponent1 shared1;
+	 shared2.testInt = 0;
+	 shared1.testInt = 0;
+
 	 EntityArchetype archetype12 =
 		 EntityArchetype(ComponentType::Get<TestComponent1>())
 		 .AddComponent(ComponentType::Get<TestComponent2>());
+
+	 EntityArchetype archetype2 =
+		 EntityArchetype(ComponentType::Get<TestComponent1>()).AddSharedComponent(&shared2);
+
+	 EntityArchetype archetype3 =
+		 EntityArchetype(ComponentType::Get<TestComponent1>()).AddSharedComponent(&shared1);
 
 	 EntityArchetype archetype1 =
 		 EntityArchetype(ComponentType::Get<TestComponent1>());
 
 
 
-	 EntityArray arr12 = entitymanager->CreateEntitites(200);
+	 EntityArray arr12 = entitymanager->CreateEntitites(archetype12, 200);
 
-	 for (Entity e : arr12) {
-		 componentmanager->MoveToArchetype(e, archetype12);
-	 }
+	 EntityArray arr1 = entitymanager->CreateEntitites(archetype1, 200);
 
-	 EntityArray arr1 = entitymanager->CreateEntitites(200);
+	 EntityArray arr2 = entitymanager->CreateEntitites(archetype2, 200);
 
-	 for (Entity e : arr1) {
-		 componentmanager->MoveToArchetype(e, archetype1);
-	 }
+	 EntityArray arr3 = entitymanager->CreateEntitites(archetype3, 200);
 
-	 systemmanager->RegisterSystem(new TestSystem4());
+
+	 systemmanager->RegisterComponentSystem(new TestSystem4());
 
 	 const int numUpdates = 10;
 
@@ -269,6 +286,14 @@ TEST(ComponentSystems, MultipleSystems) {
 	 }
 
 	 for (Entity e : arr1) {
+		 ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
+	 }
+
+	 for (Entity e : arr2) {
+		 ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, 0);
+	 }
+
+	 for (Entity e : arr3) {
 		 ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
 	 }
  }

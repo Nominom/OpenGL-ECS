@@ -141,14 +141,14 @@ struct EntityIterator {
 };
 
 template <class ...Components>
-class ComponentDataBlockArray {
+class ComponentDatablock {
 private:
 	size_t len;
 	std::tuple<ComponentDataIterator<Components>...> data;
 	EntityIterator entities;
 public:
 	
-	inline ComponentDataBlockArray(ComponentMemoryBlock *block) :
+	inline ComponentDatablock(ComponentMemoryBlock *block) :
 		data(ComponentDataIterator<Components>(block)...), entities(block){
 		len = block->size();
 	}
@@ -171,7 +171,9 @@ template <class ...Components>
 class IComponentSystem {
 public:
 	bool running = true;
-	virtual void DoWork(const ComponentDataBlockArray<Components...>&) = 0;
+	virtual void DoWork(double deltaTime, const ComponentDatablock<Components...>&) = 0;
+	virtual inline void Update(double deltaTime) {}
+
 
 	virtual inline ComponentFilter GetFilter() {
 		ComponentFilter filter;

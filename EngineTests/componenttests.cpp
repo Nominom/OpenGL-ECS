@@ -210,3 +210,27 @@ TEST(Components, MoveManyIndividually) {
 	}
 
 }
+
+
+TEST(Components, CreateEntityFromArchetype) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	EntityArchetype archetype = EntityArchetype(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
+
+	Entity entity = entitymanager->CreateEntity(archetype);
+
+	const size_t numents = 100;
+	EntityArray arr = entitymanager->CreateEntitites(archetype, numents);
+
+	ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(entity));
+	ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(entity));
+
+	for (Entity e : arr) {
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(e));
+	}
+
+}

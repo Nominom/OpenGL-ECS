@@ -195,3 +195,16 @@ TEST(EntityArchetypes, RemoveSharedComponent) {
 
 	ASSERT_EQ(archetype5.ArchetypeHash(), archetype.ArchetypeHash());
 }
+
+TEST(EntityArchetypes, CreateTemplate) {
+
+	TestSharedComponent1 shared1;
+	TestSharedComponent2 shared2;
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1, TestComponent2>(&shared1, &shared2);
+
+	ASSERT_TRUE(archetype.HasComponentType(TestComponent1::ComponentTypeID));
+	ASSERT_TRUE(archetype.HasComponentType(TestComponent2::ComponentTypeID));
+
+	ASSERT_TRUE(archetype.HasSharedComponentType(TestSharedComponent1::ComponentTypeID));
+	ASSERT_TRUE(archetype.HasSharedComponentType(TestSharedComponent2::ComponentTypeID));
+}

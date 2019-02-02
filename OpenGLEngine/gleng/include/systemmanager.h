@@ -1,14 +1,14 @@
 #pragma once
 #include "system.h"
 
-class ISystemDataInjector {
+class IComponentSystemDataInjector {
 public:
 	virtual void ExecuteSystem(ComponentManager* componentManager, double deltaTime) = 0;
-	virtual ~ISystemDataInjector() = default;
+	virtual ~IComponentSystemDataInjector() = default;
 };
 
 template <class ...Args>
-class SystemDataInjector : public ISystemDataInjector {
+class SystemDataInjector : public IComponentSystemDataInjector {
 private:
 	IComponentSystem<Args...> *system;
 	ComponentFilter filter;
@@ -16,9 +16,10 @@ public:
 	inline virtual void ExecuteSystem(ComponentManager* componentManager, double deltaTime) {
 		std::vector<ComponentMemoryBlock*> blocks = componentManager->GetMemoryBlocks(filter);
 		for (ComponentMemoryBlock *block : blocks) {
-			ComponentDataBlockArray<Args...> datablock(block);
-			system->DoWork(datablock);
+			ComponentDatablock<Args...> datablock(block);
+			system->DoWork(deltaTime, datablock);
 		}
+		system->Update(deltaTime);
 	}
 
 	inline SystemDataInjector(IComponentSystem<Args...> *s) {
@@ -34,16 +35,16 @@ public:
 
 class SystemManager {
 private:
-	std::list<ISystemDataInjector*> systemInjectors;
+	std::list<IComponentSystemDataInjector*> systemInjectors;
 
 public:
 	template <class ...Args>
-	inline void RegisterSystem(IComponentSystem<Args...> *system) {
+	inline void RegisterComponentSystem(IComponentSystem<Args...> *system) {
 		systemInjectors.push_back(new SystemDataInjector<Args...>(system));
 	}
 
 	inline void Update(ComponentManager* cm, double deltaTime) {
-		for (ISystemDataInjector *system : systemInjectors) {
+		for (IComponentSystemDataInjector *system : systemInjectors) {
 			system->ExecuteSystem(cm, deltaTime);
 		}
 	}
@@ -53,7 +54,7 @@ public:
 	}
 
 	inline void Clear() {
-		for (ISystemDataInjector *system : systemInjectors) {
+		for (IComponentSystemDataInjector *system : systemInjectors) {
 			delete(system);
 		}
 		systemInjectors.clear();

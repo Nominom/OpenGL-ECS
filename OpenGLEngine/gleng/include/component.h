@@ -6,14 +6,12 @@
 
 
 template <class T>
-class IComponent {
-public:
+struct IComponent {
 	static const type_hash ComponentTypeID;
 };
 
 template <class T>
-class ISharedComponent{
-public:
+struct ISharedComponent{
 	static const type_hash ComponentTypeID;
 };
 
@@ -54,12 +52,17 @@ public:
 		return *this;
 	}
 
-
-	//TODO: Exclude ISharedComponent
-	template <class T>
+	template <class T, std::enable_if_t<std::is_base_of<IComponent<T>, T>::value, int> = 0>
 	inline ComponentFilter& Exclude() {
 		CHECK_T_IS_COMPONENT;
 		excludeTypes.push_back(IComponent<T>::ComponentTypeID);
+		return *this;
+	}
+
+	template <class T, std::enable_if_t<std::is_base_of<ISharedComponent<T>, T>::value, int> = 0>
+	inline ComponentFilter& Exclude() {
+		CHECK_T_IS_SHARED_COMPONENT;
+		excludeSharedTypes.push_back(ISharedComponent<T>::ComponentTypeID);
 		return *this;
 	}
 

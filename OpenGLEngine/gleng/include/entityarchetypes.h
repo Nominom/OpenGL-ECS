@@ -26,6 +26,16 @@ public:
 
 };
 
+namespace util {
+	namespace entityarchetype {
+		template <typename... Components>
+		struct EntityArchetypeCreator;
+
+		template <typename... Shared>
+		struct EntityArchetypeCreatorShared;
+	}
+}
+
 class EntityArchetype {
 	std::unordered_map<type_hash, size_t> componentTypesMemory;
 	std::unordered_map<type_hash, void*> sharedComponents;
@@ -114,7 +124,54 @@ public:
 	inline type_hash ArchetypeHash() const{
 		return _archetypeHash;
 	}
+
+	template <class ...Components, class ...SharedComponents>
+	static EntityArchetype Create(SharedComponents*... shared) {
+		EntityArchetype archetype = util::entityarchetype::EntityArchetypeCreator<Components...>::get();
+		EntityArchetype withShared =
+			util::entityarchetype::EntityArchetypeCreatorShared<SharedComponents...>::get(archetype, shared...);
+		return withShared;
+	}
+	
 };
+
+namespace util{
+	namespace entityarchetype{
+		template <typename T, typename... Components>
+		struct EntityArchetypeCreator<T, Components...> {
+
+			static EntityArchetype get() {
+				CHECK_T_IS_COMPONENT;
+				EntityArchetype archetype = EntityArchetypeCreator<Components...>::get();
+				return archetype.AddComponent(ComponentType::Get<T>());
+			}
+		};
+
+		template <>
+		struct EntityArchetypeCreator<> {
+			static EntityArchetype get() {
+				return EntityArchetype();
+			}
+		};
+
+		template <typename T, typename... Shared>
+		struct EntityArchetypeCreatorShared<T, Shared...> {
+
+			static EntityArchetype get(const EntityArchetype& arc, T* shared, Shared*... rest) {
+				CHECK_T_IS_SHARED_COMPONENT;
+				EntityArchetype archetype = EntityArchetypeCreatorShared<Shared...>::get(arc, rest...);
+				return archetype.AddSharedComponent(shared);
+			}
+		};
+
+		template <>
+		struct EntityArchetypeCreatorShared<> {
+			static EntityArchetype get(const EntityArchetype& arc) {
+				return arc;
+			}
+		};
+	}
+}
 
 namespace std {
 
