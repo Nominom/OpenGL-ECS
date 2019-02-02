@@ -74,6 +74,15 @@
     <ClInclude Include="gleng\include\systemmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gleng\include\events.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gleng\include\eventmanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gleng\include\eventlistener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

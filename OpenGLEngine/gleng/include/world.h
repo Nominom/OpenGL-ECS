@@ -1,8 +1,8 @@
 #pragma once
 #include "entitymanager.h"
 #include "componentmanager.h"
-#include "system.h"
 #include "systemmanager.h"
+#include "eventmanager.h"
 
 class World {
 public:
@@ -18,6 +18,11 @@ public:
 
 	static SystemManager* GetSystemManager() {
 		static SystemManager manager;
+		return &manager;
+	}
+
+	static EventManager* GetEventManager() {
+		static EventManager manager;
 		return &manager;
 	}
 

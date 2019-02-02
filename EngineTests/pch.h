@@ -8,21 +8,27 @@
 #include "gtest/gtest.h"
 #include <gleng.h>
 
-struct TestComponent1 : IComponent<TestComponent1> {
+struct TestComponent1 : public IComponent<TestComponent1> {
 	int testValue;
 };
 
-struct TestComponent2 : IComponent<TestComponent2> {
+struct TestComponent2 : public IComponent<TestComponent2> {
 	float testFloat;
 	uint64_t testBigint;
 };
 
-struct TestSharedComponent1 : ISharedComponent<TestSharedComponent1> {
+struct TestSharedComponent1 : public ISharedComponent<TestSharedComponent1> {
 	char testArr[100];
 	int testInt;
 };
 
-struct TestSharedComponent2 : ISharedComponent<TestSharedComponent2> {
+struct TestSharedComponent2 : public ISharedComponent<TestSharedComponent2> {
 	std::string testString;
+	int testInt;
+};
+
+
+struct TestEvent1 : public IEvent<TestEvent1> {
+	Entity testEntity;
 	int testInt;
 };

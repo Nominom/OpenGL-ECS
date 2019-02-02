@@ -133,6 +133,9 @@
     <ClInclude Include="gleng\include\entity.h" />
     <ClInclude Include="gleng\include\entityarchetypes.h" />
     <ClInclude Include="gleng\include\entitymanager.h" />
+    <ClInclude Include="gleng\include\eventlistener.h" />
+    <ClInclude Include="gleng\include\eventmanager.h" />
+    <ClInclude Include="gleng\include\events.h" />
     <ClInclude Include="gleng\include\gleng.h" />
     <ClInclude Include="gleng\include\memoryblocks.h" />
     <ClInclude Include="gleng\include\system.h" />
