@@ -3,6 +3,9 @@
 #include "entity.h"
 #include "entityarchetypes.h"
 
+class ComponentManager;
+class EventManager;
+
 
 class EntityManager {
 	std::vector<Entity> entities;
@@ -11,7 +14,11 @@ class EntityManager {
 	static uint32_t NextID() {
 		return nextid++;
 	}
+
+	EventManager *_eventmanager;
+	ComponentManager *_componentmanager;
 public:
+	EntityManager(ComponentManager*, EventManager*);
 	Entity CreateEntity();
 	EntityArray CreateEntitites(size_t number);
 	Entity CreateEntity(const EntityArchetype&);

@@ -1,9 +1,10 @@
 #include "pch.h"
 
 TEST(Entities, CreateSingles) {
-	EntityManager manager;
-	Entity entity1 = manager.CreateEntity();
-	Entity entity2 = manager.CreateEntity();
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
+	Entity entity1 = manager->CreateEntity();
+	Entity entity2 = manager->CreateEntity();
 
 	ASSERT_NE(entity1.ID, ENTITY_NULL_ID) << "Entity was null";
 	ASSERT_NE(entity2.ID, ENTITY_NULL_ID) << "Entity was null";
@@ -13,10 +14,11 @@ TEST(Entities, CreateSingles) {
 }
 
 TEST(Entities, CreateArrays) {
-	EntityManager manager;
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
 
 	const int entityArrSize = 100;
-	EntityArray entArr = manager.CreateEntitites(entityArrSize);
+	EntityArray entArr = manager->CreateEntitites(entityArrSize);
 
 	ASSERT_EQ(entArr.size, entityArrSize) << "Entity array size does not match the requested size";
 

@@ -1,6 +1,10 @@
 #pragma once
 #include "eventlistener.h"
 
+#ifndef ECS_NO_TSL
+#include "tsl/robin_map.h"
+#endif
+
 class IEventQueue {
 public:
 	virtual void DeliverEvents() = 0;
@@ -43,9 +47,13 @@ public:
 	}
 };
 
-
 class EventManager {
-	std::unordered_map<type_hash, IEventQueue*> _eventQueues;
+#ifdef ECS_NO_TSL
+	std::unordered_map<type_hash, IEventQueue*, util::typehasher> _eventQueues;
+#else
+	tsl::robin_map<type_hash, IEventQueue*, util::typehasher> _eventQueues;
+#endif // ECS_NO_TSL
+
 
 	template<class T>
 	inline EventQueue<T>* GetOrCreateEventQueue() {

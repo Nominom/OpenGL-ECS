@@ -17,10 +17,20 @@ const type_hash IEvent<T>::EventTypeID = util::GetTypeHash<T>();
 
 struct EntityCreatedEvent : public IEvent<EntityCreatedEvent> {
 	Entity entity;
+
+	EntityCreatedEvent() = default;
+	inline EntityCreatedEvent(const Entity& e) {
+		entity = e;
+	}
 };
 
 struct EntityDestroyedEvent : public IEvent<EntityDestroyedEvent> {
 	Entity entity;
+
+	EntityDestroyedEvent() = default;
+	inline EntityDestroyedEvent(const Entity& e) {
+		entity = e;
+	}
 };
 
 struct ComponentAddedEvent : public IEvent<ComponentAddedEvent> {

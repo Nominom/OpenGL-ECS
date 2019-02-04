@@ -18,9 +18,6 @@
     <ClCompile Include="gleng\src\entitymanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gleng\src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gleng\src\entityarchetypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

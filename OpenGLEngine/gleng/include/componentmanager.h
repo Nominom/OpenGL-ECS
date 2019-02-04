@@ -3,6 +3,11 @@
 #include "component.h"
 #include "entityarchetypes.h"
 #include "memoryblocks.h"
+#include "eventmanager.h"
+
+#ifndef ECS_NO_TSL
+#include "tsl/robin_map.h"
+#endif
 
 
 struct ArchetypeBlockIndex {
@@ -48,11 +53,14 @@ public:
 class ComponentManager {
 	std::vector<EntityArchetypeBlock> _archetypes;
 	std::vector<ArchetypeBlockIndex> _entityMap;
-	std::unordered_map<type_hash, size_t> _archetypeHashIndices;
+#ifdef ECS_NO_TSL
+	std::unordered_map<type_hash, size_t, util::typehasher> _archetypeHashIndices;
+#else
+	tsl::robin_map<type_hash, size_t, util::typehasher> _archetypeHashIndices;
+#endif // ECS_NO_TSL
 
-	//std::unordered_map<type_hash, ComponentMemoryBlock> _archetypeComponents;
-	//std::unordered_map<type_hash, size_t> _archetypeHashIndices;
-	//std::unordered_map<Entity, type_hash> _entityArchetypes;
+	EventManager *_eventmanager;
+
 
 	inline ArchetypeBlockIndex GetFreeBlockOf(const EntityArchetype& archetype) {
 		ArchetypeBlockIndex newArchIndex;
@@ -175,7 +183,9 @@ class ComponentManager {
 
 public:
 
-	ComponentManager() = default;
+	inline ComponentManager(EventManager* em) {
+		_eventmanager = em;
+	}
 
 	inline void AddEntity(const Entity& e) {
 		static const EntityArchetype empty;
@@ -195,6 +205,15 @@ public:
 		ArchetypeBlockIndex idx = GetFreeBlockOf(archetype);
 		idx.elementIndex = _archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->AddEntity(e);
 		_entityMap[e.ID] = idx;
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+		for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
+			ComponentAddedEvent ev;
+			ev.entity = e;
+			ev.componentType = component.first;
+			_eventmanager->QueueEvent(ev);
+		}
+#endif //ECS_NO_COMPONENT_EVENTS
 	}
 
 	template<class T>
@@ -229,6 +248,16 @@ public:
 		}
 
 		_entityMap[e.ID] = newBlock;
+
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+		ComponentAddedEvent ev;
+		ev.entity = e;
+		ev.componentType = IComponent<T>::ComponentTypeID;
+		_eventmanager->QueueEvent(ev);
+#endif //ECS_NO_COMPONENT_EVENTS
+
+
 		return GetMemoryBlock(newBlock)->GetComponentArray<T>()[newBlock.elementIndex];
 	}
 
@@ -257,6 +286,13 @@ public:
 			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
 		}
 		_entityMap[e.ID] = newBlock;
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+		ComponentRemovedEvent ev;
+		ev.entity = e;
+		ev.componentType = IComponent<T>::ComponentTypeID;
+		_eventmanager->QueueEvent(ev);
+#endif //ECS_NO_COMPONENT_EVENTS
 	}
 
 	inline void MoveToArchetype(const Entity &e, const EntityArchetype& archetype) {
@@ -276,6 +312,31 @@ public:
 			_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
 		}
 		_entityMap[e.ID] = newBlock;
+
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+
+		auto &oldComponents = _archetypes[oldBlock.archetypeIndex].archetype.GetComponentTypes();
+		auto &newComponents = _archetypes[newBlock.archetypeIndex].archetype.GetComponentTypes();
+
+		for (auto oldC : oldComponents) {
+			if (newComponents.find(oldC.first) == newComponents.end()) {
+				ComponentRemovedEvent ev;
+				ev.entity = e;
+				ev.componentType = oldC.first;
+				_eventmanager->QueueEvent(ev);
+			}
+		}
+
+		for (auto newC : newComponents) {
+			if (oldComponents.find(newC.first) == oldComponents.end()) {
+				ComponentAddedEvent ev;
+				ev.entity = e;
+				ev.componentType = newC.first;
+				_eventmanager->QueueEvent(ev);
+			}
+		}
+#endif //ECS_NO_COMPONENT_EVENTS
 	}
 
 	template<class T>

@@ -4,6 +4,10 @@
 #include <unordered_map>
 #include "component.h"
 
+#ifndef ECS_NO_TSL
+#include "tsl/robin_map.h"
+#endif
+
 struct ComponentType {
 private:
 	ComponentType() = default;
@@ -37,8 +41,15 @@ namespace util {
 }
 
 class EntityArchetype {
-	std::unordered_map<type_hash, size_t> componentTypesMemory;
-	std::unordered_map<type_hash, void*> sharedComponents;
+#ifdef ECS_NO_TSL
+	std::unordered_map<type_hash, size_t, util::typehasher> componentTypesMemory;
+	std::unordered_map<type_hash, void*, util::typehasher> sharedComponents;
+#else
+	tsl::robin_map<type_hash, size_t, util::typehasher> componentTypesMemory;
+	tsl::robin_map<type_hash, void*, util::typehasher> sharedComponents;
+#endif // ECS_NO_TSL
+
+
 	void GenerateHash();
 	type_hash _archetypeHash;
 public:
@@ -52,8 +63,13 @@ public:
 	}
 
 	inline EntityArchetype(const EntityArchetype &other) {
-		componentTypesMemory = std::unordered_map<type_hash, size_t>(other.componentTypesMemory);
-		sharedComponents = std::unordered_map<type_hash, void*>(other.sharedComponents);
+#ifdef ECS_NO_TSL
+		componentTypesMemory = std::unordered_map<type_hash, size_t, util::typehasher>(other.componentTypesMemory);
+		sharedComponents = std::unordered_map<type_hash, void*, util::typehasher>(other.sharedComponents);
+#else
+		componentTypesMemory = tsl::robin_map<type_hash, size_t, util::typehasher>(other.componentTypesMemory);
+		sharedComponents = tsl::robin_map<type_hash, void*, util::typehasher>(other.sharedComponents);
+#endif // ECS_NO_TSL
 		_archetypeHash = other._archetypeHash;
 	}
 
@@ -117,9 +133,15 @@ public:
 		}
 	}
 
+#ifdef ECS_NO_TSL
 	inline const std::unordered_map<type_hash, size_t> &GetComponentTypes() const {
 		return componentTypesMemory;
+}
+#else
+	inline const tsl::robin_map<type_hash, size_t, util::typehasher> &GetComponentTypes() const {
+		return componentTypesMemory;
 	}
+#endif // ECS_NO_TSL
 
 	inline type_hash ArchetypeHash() const{
 		return _archetypeHash;

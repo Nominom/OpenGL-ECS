@@ -122,7 +122,6 @@
     <ClCompile Include="gleng\src\componentmanager.cpp" />
     <ClCompile Include="gleng\src\entityarchetypes.cpp" />
     <ClCompile Include="gleng\src\entitymanager.cpp" />
-    <ClCompile Include="gleng\src\main.cpp" />
     <ClCompile Include="gleng\src\memoryblocks.cpp" />
     <ClCompile Include="gleng\src\system.cpp" />
   </ItemGroup>

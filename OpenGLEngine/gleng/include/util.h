@@ -19,6 +19,12 @@ namespace util {
 		return typeId;
 	}
 
+
+	struct typehasher {
+		std::size_t operator()(const type_hash hash) const {
+			return hash;
+		}
+	};
 }
 
 /*namespace std {

@@ -7,12 +7,12 @@
 class World {
 public:
 	static EntityManager* GetEntityManager(){
-		static EntityManager manager;
+		static EntityManager manager(GetComponentManager(), GetEventManager());
 		return &manager;
 	}
 
 	static ComponentManager* GetComponentManager() {
-		static ComponentManager manager;
+		static ComponentManager manager(GetEventManager());
 		return &manager;
 	}
 
@@ -30,6 +30,7 @@ public:
 		GetEntityManager()->Clear();
 		GetComponentManager()->Clear();
 		GetSystemManager()->Clear();
+		GetEventManager()->Clear();
 		MemoryBlockAllocator::instance().Clear();
 	}
 };

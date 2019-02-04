@@ -3,6 +3,10 @@
 #include "component.h"
 #include "entityarchetypes.h"
 
+#ifndef ECS_NO_TSL
+#include "tsl/robin_map.h"
+#endif
+
 
 struct MemoryPtr {
 	void* ptr;
@@ -17,8 +21,13 @@ private:
 public:
 	static const size_t datasize = KB(16);
 	uint8_t data[datasize];
-	std::unordered_map<type_hash, MemoryPtr> dataLocations;
 	EntityArchetype type;
+
+#ifdef ECS_NO_TSL
+	std::unordered_map<type_hash, MemoryPtr, util::typehasher> dataLocations;
+#else
+	tsl::robin_map<type_hash, MemoryPtr, util::typehasher> dataLocations;
+#endif // ECS_NO_TSL
 
 	ComponentMemoryBlock() = default;
 	void Initialize(const EntityArchetype &);
