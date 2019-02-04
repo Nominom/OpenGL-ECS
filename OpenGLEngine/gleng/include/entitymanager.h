@@ -21,8 +21,8 @@ public:
 	EntityManager(ComponentManager*, EventManager*);
 	Entity CreateEntity();
 	EntityArray CreateEntitites(size_t number);
+	EntityArray CreateEntitites(size_t number, const EntityArchetype&);
 	Entity CreateEntity(const EntityArchetype&);
-	EntityArray CreateEntitites(const EntityArchetype&, size_t number);
 	void DestroyEntity(Entity entity);
 	void DestroyEntites(EntityArray entitities);
 	bool EntityExists(Entity entity) const;

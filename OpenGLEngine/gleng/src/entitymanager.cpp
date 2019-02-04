@@ -52,7 +52,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype) {
 	return entity;
 }
 
-EntityArray EntityManager::CreateEntitites(const EntityArchetype &archetype, size_t number) {
+EntityArray EntityManager::CreateEntitites(size_t number, const EntityArchetype &archetype) {
 	EntityArray arr;
 	arr.size = number;
 

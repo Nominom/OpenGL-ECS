@@ -223,7 +223,7 @@ TEST(Components, CreateEntityFromArchetype) {
 	Entity entity = entitymanager->CreateEntity(archetype);
 
 	const size_t numents = 10000;
-	EntityArray arr = entitymanager->CreateEntitites(archetype, numents);
+	EntityArray arr = entitymanager->CreateEntitites(numents, archetype);
 
 	ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(entity));
 	ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(entity));

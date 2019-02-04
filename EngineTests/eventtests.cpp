@@ -188,7 +188,7 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 
 	const size_t numentities = 1000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(archetype, numentities);
+	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
 
 	eventmanager->DeliverEvents();
 
@@ -220,7 +220,7 @@ TEST(Events, ComponentRemovedEvents) {
 
 	const size_t numentities = 1000;
 
-	EntityArray ents = entitymanager->CreateEntitites(archetype, numentities);
+	EntityArray ents = entitymanager->CreateEntitites(numentities, archetype);
 
 	for (Entity e : ents) {
 		componentmanager->RemoveComponent<TestComponent2>(e);
@@ -252,7 +252,7 @@ TEST(Events, ComponentMoveAddedEvent) {
 
 	const size_t numentities = 1000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(archetype2, numentities);
+	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype2);
 
 	eventmanager->DeliverEvents();
 
@@ -289,7 +289,7 @@ TEST(Events, ComponentMoveRemovedEvent) {
 
 	const size_t numentities = 1000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(archetype12, numentities);
+	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype12);
 
 	eventmanager->DeliverEvents();
 

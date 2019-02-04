@@ -262,15 +262,15 @@ TEST(ComponentSystems, MultipleSystems) {
 	 EntityArchetype archetype1 =
 		 EntityArchetype(ComponentType::Get<TestComponent1>());
 
+	 const size_t numents = 1000;
 
+	 EntityArray arr12 = entitymanager->CreateEntitites(numents, archetype12);
 
-	 EntityArray arr12 = entitymanager->CreateEntitites(archetype12, 200);
+	 EntityArray arr1 = entitymanager->CreateEntitites(numents, archetype1);
 
-	 EntityArray arr1 = entitymanager->CreateEntitites(archetype1, 200);
+	 EntityArray arr2 = entitymanager->CreateEntitites(numents, archetype2);
 
-	 EntityArray arr2 = entitymanager->CreateEntitites(archetype2, 200);
-
-	 EntityArray arr3 = entitymanager->CreateEntitites(archetype3, 200);
+	 EntityArray arr3 = entitymanager->CreateEntitites(numents, archetype3);
 
 
 	 systemmanager->RegisterComponentSystem(new TestSystem4());
