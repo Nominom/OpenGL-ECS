@@ -35,7 +35,7 @@ public:
 
 class SystemManager {
 private:
-	std::list<IComponentSystemDataInjector*> systemInjectors;
+	std::vector<IComponentSystemDataInjector*> systemInjectors;
 
 public:
 	template <class ...Args>
