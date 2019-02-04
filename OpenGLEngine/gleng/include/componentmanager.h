@@ -14,6 +14,10 @@ struct ArchetypeBlockIndex {
 	size_t archetypeIndex;
 	size_t blockIndex;
 	size_t elementIndex;
+
+	static ArchetypeBlockIndex Invalid() {
+		return ArchetypeBlockIndex();
+	}
 };
 
 class EntityArchetypeBlock {
@@ -214,6 +218,26 @@ public:
 			_eventmanager->QueueEvent(ev);
 		}
 #endif //ECS_NO_COMPONENT_EVENTS
+	}
+
+	inline void RemoveEntity(const Entity& e) {
+		ArchetypeBlockIndex idx = FindBlockIndexFor(e);
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+		for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
+			ComponentRemovedEvent ev;
+			ev.entity = e;
+			ev.componentType = component.first;
+			_eventmanager->QueueEvent(ev);
+		}
+#endif //ECS_NO_COMPONENT_EVENTS
+
+		Entity removedEntity = _archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex]->RemoveEntityMoveLast(idx.elementIndex);
+		if (removedEntity.ID != ENTITY_NULL_ID) {
+			_entityMap[removedEntity.ID].elementIndex = idx.elementIndex;
+		}
+
+		_entityMap[e.ID] = ArchetypeBlockIndex::Invalid();
 	}
 
 	template<class T>

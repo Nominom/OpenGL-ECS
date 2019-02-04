@@ -30,6 +30,26 @@ TEST(Entities, CreateArrays) {
 	}
 }
 
+TEST(Entities, Destroy) {
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
+
+	const int entityArrSize = 100;
+	EntityArray entArr = manager->CreateEntitites(entityArrSize);
+
+	ASSERT_FALSE(true); //todo
+}
+
+TEST(Entities, DestroyArrays) {
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
+
+	const int entityArrSize = 100;
+	EntityArray entArr = manager->CreateEntitites(entityArrSize);
+
+	ASSERT_FALSE(true); //todo
+}
+
 
 TEST(EntityArchetypes, ComponentTypes) {
 	ComponentType type1 = ComponentType::Get<TestComponent1>();

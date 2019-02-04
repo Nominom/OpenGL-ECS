@@ -3,7 +3,6 @@
 #include "../include/componentmanager.h"
 #include "../include/eventmanager.h"
 
-uint32_t EntityManager::nextid = 1;
 
 EntityManager::EntityManager(ComponentManager * cm, EventManager * em) {
 	_componentmanager = cm;
@@ -25,17 +24,13 @@ EntityArray EntityManager::CreateEntitites(size_t number) {
 	arr.size = number;
 
 	if (number > 0) {
-		size_t oldSize = entities.size();
-		size_t newSize = oldSize + number;
-		entities.resize(newSize);
-		for (int i = oldSize; i < newSize; i++) {
-			entities[i].ID = EntityManager::NextID();
-			_componentmanager->AddEntity(entities[i]);
-			_eventmanager->QueueEvent(EntityCreatedEvent(entities[i]));
+		arr.data = std::shared_ptr<Entity[]>(new Entity[number]);
 
+		for (int i = 0; i < number; ++i) {
+			arr.data[i].ID = EntityManager::NextID();
+			_componentmanager->AddEntity(arr.data[i]);
+			_eventmanager->QueueEvent(EntityCreatedEvent(arr.data[i]));
 		}
-		arr.data = std::shared_ptr<Entity[]> (new Entity[number]);
-		std::memcpy(arr.data.get(), &entities[oldSize], number * sizeof(Entity));
 	}
 	
 	return arr;
@@ -57,16 +52,13 @@ EntityArray EntityManager::CreateEntitites(size_t number, const EntityArchetype 
 	arr.size = number;
 
 	if (number > 0) {
-		size_t oldSize = entities.size();
-		size_t newSize = oldSize + number;
-		entities.resize(newSize);
-		for (int i = oldSize; i < newSize; i++) {
-			entities[i].ID = EntityManager::NextID();
-			_componentmanager->AddEntity(entities[i], archetype);
-			_eventmanager->QueueEvent(EntityCreatedEvent(entities[i]));
-		}
 		arr.data = std::shared_ptr<Entity[]>(new Entity[number]);
-		std::memcpy(arr.data.get(), &entities[oldSize], number * sizeof(Entity));
+
+		for (int i = 0; i < number; ++i) {
+			arr.data[i].ID = EntityManager::NextID();
+			_componentmanager->AddEntity(arr.data[i], archetype);
+			_eventmanager->QueueEvent(EntityCreatedEvent(arr.data[i]));
+		}
 	}
 
 	return arr;
@@ -74,5 +66,21 @@ EntityArray EntityManager::CreateEntitites(size_t number, const EntityArchetype 
 
 void EntityManager::Clear() {
 	nextid = 1;
-	entities.clear();
+	freeIDs.clear();
 }
+
+void EntityManager::DestroyEntity(const Entity& entity) {
+	_componentmanager->RemoveEntity(entity);
+	freeIDs.push_back(entity.ID);
+	_eventmanager->QueueEvent(EntityDestroyedEvent(entity));
+}
+
+void EntityManager::DestroyEntites(const EntityArray& entities) {
+
+	for (const Entity& entity : entities) {
+		_componentmanager->RemoveEntity(entity);
+		freeIDs.push_back(entity.ID);
+		_eventmanager->QueueEvent(EntityDestroyedEvent(entity));
+	}
+}
+

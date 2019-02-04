@@ -27,6 +27,14 @@ struct EntityArray {
 	inline Entity* end() {
 		return begin() + size;
 	}
+
+	inline const Entity* begin() const{
+		return &data[0];
+	}
+
+	inline const Entity* end() const{
+		return begin() + size;
+	}
 };
 
 namespace std {

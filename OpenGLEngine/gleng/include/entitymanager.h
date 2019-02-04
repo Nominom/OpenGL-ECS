@@ -8,10 +8,14 @@ class EventManager;
 
 
 class EntityManager {
-	std::vector<Entity> entities;
-	//std::vector<uint32_t> freeIDs;
-	static uint32_t nextid;
-	static uint32_t NextID() {
+	std::vector<uint32_t> freeIDs;
+	uint32_t nextid = 1;
+	inline uint32_t NextID() {
+		if (freeIDs.size() > 0) {
+			uint32_t lastIdx = freeIDs[freeIDs.size() - 1];
+			freeIDs.pop_back();
+			return lastIdx;
+		}
 		return nextid++;
 	}
 
@@ -23,8 +27,7 @@ public:
 	EntityArray CreateEntitites(size_t number);
 	EntityArray CreateEntitites(size_t number, const EntityArchetype&);
 	Entity CreateEntity(const EntityArchetype&);
-	void DestroyEntity(Entity entity);
-	void DestroyEntites(EntityArray entitities);
-	bool EntityExists(Entity entity) const;
+	void DestroyEntity(const Entity& entity);
+	void DestroyEntites(const EntityArray &entities);
 	void Clear();
 };
