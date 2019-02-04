@@ -70,6 +70,9 @@ void EntityManager::Clear() {
 }
 
 void EntityManager::DestroyEntity(const Entity& entity) {
+	assert(std::find(freeIDs.begin(), freeIDs.end(), entity.ID) == freeIDs.end());
+	assert(entity.ID != ENTITY_NULL_ID);
+
 	_componentmanager->RemoveEntity(entity);
 	freeIDs.push_back(entity.ID);
 	_eventmanager->QueueEvent(EntityDestroyedEvent(entity));
@@ -78,6 +81,8 @@ void EntityManager::DestroyEntity(const Entity& entity) {
 void EntityManager::DestroyEntites(const EntityArray& entities) {
 
 	for (const Entity& entity : entities) {
+		assert(std::find(freeIDs.begin(), freeIDs.end(), entity.ID) == freeIDs.end());
+		assert(entity.ID != ENTITY_NULL_ID);
 		_componentmanager->RemoveEntity(entity);
 		freeIDs.push_back(entity.ID);
 		_eventmanager->QueueEvent(EntityDestroyedEvent(entity));

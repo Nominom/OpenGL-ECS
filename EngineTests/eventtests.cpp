@@ -141,6 +141,43 @@ TEST(Events, CreateEntityEvents) {
 	}
 }
 
+TEST(Events, DestroyEntityEvent) {
+
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+
+	EntityDestroyedEventListener testListener;
+
+	eventmanager->RegisterListener(&testListener);
+
+	const size_t numentities = 1000;
+
+	std::vector<Entity> evec;
+
+	for (size_t i = 0; i < numentities; ++i) {
+		evec.push_back(entitymanager->CreateEntity());
+	}
+
+	for (Entity e : evec) {
+		entitymanager->DestroyEntity(e);
+	}
+
+	EntityArray eArr = entitymanager->CreateEntitites(numentities);
+
+	entitymanager->DestroyEntites(eArr);
+
+	eventmanager->DeliverEvents();
+
+	ASSERT_EQ(testListener.sumOfEntities, numentities * 2);
+
+	ASSERT_EQ(testListener.entities.size(), numentities * 2);
+
+	for (const Entity &e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+}
+
 TEST(Events, ComponentAddedEvents) {
 
 	World::Setup();
@@ -169,6 +206,10 @@ TEST(Events, ComponentAddedEvents) {
 
 	for (type_hash type : testListener.types) {
 		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
 	}
 }
 
@@ -199,6 +240,10 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 
 	for (type_hash type : testListener.types) {
 		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
 	}
 }
 
@@ -235,6 +280,10 @@ TEST(Events, ComponentRemovedEvents) {
 
 	for (type_hash type : testListener.types) {
 		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
 	}
 }
 
@@ -273,6 +322,10 @@ TEST(Events, ComponentMoveAddedEvent) {
 	for (type_hash type : testListener.types) {
 		ASSERT_EQ(type, TestComponent1::ComponentTypeID);
 	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
 }
 
 TEST(Events, ComponentMoveRemovedEvent) {
@@ -309,5 +362,89 @@ TEST(Events, ComponentMoveRemovedEvent) {
 
 	for (type_hash type : testListener.types) {
 		ASSERT_EQ(type, TestComponent1::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+}
+
+
+TEST(Events, EntityDestoyComponentRemovedEvent) {
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+
+	ComponentRemovedEventListener testListener;
+
+	const size_t numentities = 1000;
+
+	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
+
+	eventmanager->DeliverEvents();
+
+	//register after first events have been delivered
+	eventmanager->RegisterListener(&testListener);
+
+	for (Entity e : ents1) {
+		entitymanager->DestroyEntity(e);
+	}
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testListener.sumOfEvents, numentities);
+	ASSERT_EQ(testListener.types.size(), numentities);
+	ASSERT_EQ(testListener.entities.size(), numentities);
+
+	for (type_hash type : testListener.types) {
+		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+}
+
+TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+
+	ComponentRemovedEventListener testListener;
+
+	const size_t numentities = 1000;
+
+	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
+
+	eventmanager->DeliverEvents();
+
+	//register after first events have been delivered
+	eventmanager->RegisterListener(&testListener);
+
+
+	entitymanager->DestroyEntites(ents1);
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testListener.sumOfEvents, numentities);
+	ASSERT_EQ(testListener.types.size(), numentities);
+	ASSERT_EQ(testListener.entities.size(), numentities);
+
+	for (type_hash type : testListener.types) {
+		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
+	}
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
 	}
 }

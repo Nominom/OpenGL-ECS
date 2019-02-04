@@ -30,24 +30,38 @@ TEST(Entities, CreateArrays) {
 	}
 }
 
-TEST(Entities, Destroy) {
+TEST(Entities, DestroyIDReuse) {
 	World::Setup();
 	EntityManager *manager = World::GetEntityManager();
 
-	const int entityArrSize = 100;
-	EntityArray entArr = manager->CreateEntitites(entityArrSize);
+	Entity e1 = manager->CreateEntity();
 
-	ASSERT_FALSE(true); //todo
+	manager->DestroyEntity(e1);
+
+
+	Entity e2 = manager->CreateEntity();
+
+
+	ASSERT_EQ(e1.ID, e2.ID) << "Entity ID should be reused";
+	ASSERT_NE(e1.ID, ENTITY_NULL_ID);
+	ASSERT_NE(e2.ID, ENTITY_NULL_ID);
 }
 
-TEST(Entities, DestroyArrays) {
+TEST(Entities, DestroyArraysIDReuse) {
 	World::Setup();
 	EntityManager *manager = World::GetEntityManager();
+
 
 	const int entityArrSize = 100;
 	EntityArray entArr = manager->CreateEntitites(entityArrSize);
 
-	ASSERT_FALSE(true); //todo
+	manager->DestroyEntites(entArr);
+
+	EntityArray entArr2 = manager->CreateEntitites(entityArrSize);
+
+	for (Entity e : entArr) {
+		ASSERT_TRUE(std::find(entArr2.begin(), entArr2.end(), e) != entArr2.end());
+	}
 }
 
 
