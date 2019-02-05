@@ -13,7 +13,7 @@ struct Entity {
 };
 
 struct EntityArray {
-	size_t size;
+	size_t size = 0;
 	std::shared_ptr<Entity[]> data;
 
 	inline Entity operator [](size_t index) const{

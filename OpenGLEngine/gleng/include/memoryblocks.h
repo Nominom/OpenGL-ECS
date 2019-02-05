@@ -16,8 +16,8 @@ struct MemoryPtr {
 
 class ComponentMemoryBlock {
 private:
-	size_t _size;
-	size_t _maxSize;
+	size_t _size = 0;
+	size_t _maxSize = 0;
 public:
 	static const size_t datasize = KB(16);
 	uint8_t data[datasize];

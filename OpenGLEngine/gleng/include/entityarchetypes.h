@@ -51,7 +51,7 @@ class EntityArchetype {
 
 
 	void GenerateHash();
-	type_hash _archetypeHash;
+	type_hash _archetypeHash = 0;
 public:
 	inline EntityArchetype() {
 		_archetypeHash = 0;
