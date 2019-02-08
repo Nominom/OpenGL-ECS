@@ -31,6 +31,5 @@ public:
 		GetComponentManager()->Clear();
 		GetSystemManager()->Clear();
 		GetEventManager()->Clear();
-		MemoryBlockAllocator::instance().Clear();
 	}
 };

@@ -118,11 +118,5 @@ MemoryBlockAllocator::~MemoryBlockAllocator() {
 }
 
 SharedComponentAllocator::~SharedComponentAllocator() {
-
-	for (auto keyval : sharedComponents) {
-		SharedComponentMemory memory = keyval.second;
-		delete(memory.memoryLocation);
-	}
-
-	sharedComponents.clear();
+	Clear();
 }

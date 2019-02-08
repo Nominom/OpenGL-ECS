@@ -6,6 +6,7 @@ constexpr uint32_t ENTITY_NULL_ID = 0;
 
 struct Entity {
 	uint32_t ID = ENTITY_NULL_ID;
+	//uint_32_t version; //TODO
 
 	inline bool operator ==(const Entity &b) const {
 		return ID == b.ID;

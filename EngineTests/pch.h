@@ -27,6 +27,16 @@ struct TestSharedComponent2 : public ISharedComponent<TestSharedComponent2> {
 	int testInt;
 };
 
+struct TestSharedComponentWithDestructor : public ISharedComponent<TestSharedComponentWithDestructor> {
+	std::string testString;
+	int testInt;
+	static int numDestructions;
+
+	inline ~TestSharedComponentWithDestructor() {
+		++numDestructions;
+	}
+};
+
 
 struct TestEvent1 : public IEvent<TestEvent1> {
 	Entity testEntity;

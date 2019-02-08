@@ -13,6 +13,7 @@ struct IComponent {
 template <class T>
 struct ISharedComponent{
 	static const type_hash ComponentTypeID;
+	virtual ~ISharedComponent() = default;
 };
 
 template <class T>

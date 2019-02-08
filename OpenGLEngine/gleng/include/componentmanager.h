@@ -392,6 +392,13 @@ public:
 	}
 
 	template<class T>
+	inline T* DestroySharedComponent() {
+		CHECK_T_IS_SHARED_COMPONENT;
+		static SharedComponentAllocator &allocator = SharedComponentAllocator::instance();
+		return allocator.Allocate<T>();
+	}
+
+	template<class T>
 	inline void AddSharedComponent(const Entity &e, T* component) {
 		CHECK_T_IS_SHARED_COMPONENT;
 
@@ -473,5 +480,7 @@ public:
 		_archetypes.clear();
 		_entityMap.clear();
 		_archetypeHashIndices.clear();
+		MemoryBlockAllocator::instance().Clear();
+		SharedComponentAllocator::instance().Clear();
 	}
 };

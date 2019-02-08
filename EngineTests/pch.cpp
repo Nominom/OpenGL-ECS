@@ -5,3 +5,4 @@
 
 #include "pch.h"
 
+int TestSharedComponentWithDestructor::numDestructions = 0;

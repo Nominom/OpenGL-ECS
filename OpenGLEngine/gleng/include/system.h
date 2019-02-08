@@ -39,6 +39,8 @@ struct ComponentDataIterator<T, typename std::enable_if<std::is_base_of<ICompone
 	}
 };
 
+//TODO: const iterator. Doesn't mark as dirty
+
 
 
 /*

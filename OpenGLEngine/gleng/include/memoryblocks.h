@@ -134,7 +134,11 @@ public:
 struct SharedComponentMemory {
 	type_hash type;
 	size_t memorySize;
-	void* memoryLocation;
+	std::shared_ptr<void> memoryLocation;
+
+	inline bool operator ==(const void* other) {
+		return (memoryLocation.get()) == other;
+	}
 };
 
 class SharedComponentAllocator {
@@ -151,18 +155,38 @@ public:
 		memory.type = ISharedComponent<T>::ComponentTypeID;
 		memory.memorySize = sizeof(T);
 
-		T* ptr = new T;
+		std::shared_ptr<T> ptr = std::make_shared<T>();
+		//T* ptr = new T;
 
 		memory.memoryLocation = ptr;
 
 		sharedComponents.emplace(memory.type, memory);
-		return ptr;
+		return ptr.get();
+	}
+
+	template<class T>
+	inline void Deallocate(T* component) {
+		CHECK_T_IS_SHARED_COMPONENT;
+		
+		type_hash type = ISharedComponent<T>::ComponentTypeID;
+
+		auto result = sharedComponents.equal_range(type);
+		for (auto it = result.first; it != result.second; ++it) {
+			if(it->second == component) {
+				sharedComponents.erase(it->first);
+				break;
+			}
+		}
 	}
 
 
 	static SharedComponentAllocator& instance() {
 		static SharedComponentAllocator instance;
 		return instance;
+	}
+
+	inline void Clear() {
+		sharedComponents.clear();
 	}
 
 	SharedComponentAllocator(SharedComponentAllocator const&) = delete;
