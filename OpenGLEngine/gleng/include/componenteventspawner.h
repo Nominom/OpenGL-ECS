@@ -25,8 +25,11 @@ struct ComponentEventSpawnerInstance : public IComponentEventSpawnerInstance {
 };
 
 class ComponentEventSpawner {
-	//TODO ECS_NO_TSL
+#ifdef ECS_NO_TSL
+	std::unordered_map<type_hash, IComponentEventSpawnerInstance*, util::typehasher> componentEventSpawners;
+#else
 	tsl::robin_map<type_hash, IComponentEventSpawnerInstance*, util::typehasher> componentEventSpawners;
+#endif
 
 	ComponentEventSpawner() = default;
 public:
