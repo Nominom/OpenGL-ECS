@@ -33,12 +33,13 @@ struct EntityDestroyedEvent : public IEvent<EntityDestroyedEvent> {
 	}
 };
 
-struct ComponentAddedEvent : public IEvent<ComponentAddedEvent> {
+template <class T>
+struct ComponentAddedEvent : public IEvent<ComponentAddedEvent<T>> {
 	Entity entity;
-	type_hash componentType;
 };
 
-struct ComponentRemovedEvent : public IEvent<ComponentRemovedEvent> {
+template <class T>
+struct ComponentRemovedEvent : public IEvent<ComponentRemovedEvent<T>> {
 	Entity entity;
-	type_hash componentType;
 };
+

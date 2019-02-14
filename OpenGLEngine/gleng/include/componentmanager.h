@@ -4,6 +4,7 @@
 #include "entityarchetypes.h"
 #include "memoryblocks.h"
 #include "eventmanager.h"
+#include "componenteventspawner.h"
 
 #ifndef ECS_NO_TSL
 #include "tsl/robin_map.h"
@@ -212,10 +213,12 @@ public:
 
 #ifndef ECS_NO_COMPONENT_EVENTS
 		for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
-			ComponentAddedEvent ev;
+			
+			ComponentEventSpawner::instance().ComponentAdded(component.first, e, _eventmanager);
+			/*ComponentAddedEvent ev;
 			ev.entity = e;
 			ev.componentType = component.first;
-			_eventmanager->QueueEvent(ev);
+			_eventmanager->QueueEvent(ev);*/
 		}
 #endif //ECS_NO_COMPONENT_EVENTS
 	}
@@ -225,10 +228,7 @@ public:
 
 #ifndef ECS_NO_COMPONENT_EVENTS
 		for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
-			ComponentRemovedEvent ev;
-			ev.entity = e;
-			ev.componentType = component.first;
-			_eventmanager->QueueEvent(ev);
+			ComponentEventSpawner::instance().ComponentRemoved(component.first, e, _eventmanager);
 		}
 #endif //ECS_NO_COMPONENT_EVENTS
 
@@ -275,12 +275,8 @@ public:
 
 
 #ifndef ECS_NO_COMPONENT_EVENTS
-		ComponentAddedEvent ev;
-		ev.entity = e;
-		ev.componentType = IComponent<T>::ComponentTypeID;
-		_eventmanager->QueueEvent(ev);
+		ComponentEventSpawner::instance().ComponentAdded<T>(e, _eventmanager);
 #endif //ECS_NO_COMPONENT_EVENTS
-
 
 		return GetMemoryBlock(newBlock)->GetComponentArray<T>()[newBlock.elementIndex];
 	}
@@ -312,10 +308,7 @@ public:
 		_entityMap[e.ID] = newBlock;
 
 #ifndef ECS_NO_COMPONENT_EVENTS
-		ComponentRemovedEvent ev;
-		ev.entity = e;
-		ev.componentType = IComponent<T>::ComponentTypeID;
-		_eventmanager->QueueEvent(ev);
+		ComponentEventSpawner::instance().ComponentRemoved<T>(e, _eventmanager);
 #endif //ECS_NO_COMPONENT_EVENTS
 	}
 
@@ -345,19 +338,13 @@ public:
 
 		for (auto oldC : oldComponents) {
 			if (newComponents.find(oldC.first) == newComponents.end()) {
-				ComponentRemovedEvent ev;
-				ev.entity = e;
-				ev.componentType = oldC.first;
-				_eventmanager->QueueEvent(ev);
+				ComponentEventSpawner::instance().ComponentRemoved(oldC.first, e, _eventmanager);
 			}
 		}
 
 		for (auto newC : newComponents) {
 			if (oldComponents.find(newC.first) == oldComponents.end()) {
-				ComponentAddedEvent ev;
-				ev.entity = e;
-				ev.componentType = newC.first;
-				_eventmanager->QueueEvent(ev);
+				ComponentEventSpawner::instance().ComponentAdded(newC.first, e, _eventmanager);
 			}
 		}
 #endif //ECS_NO_COMPONENT_EVENTS

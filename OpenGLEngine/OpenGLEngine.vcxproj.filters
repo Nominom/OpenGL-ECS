@@ -80,6 +80,9 @@
     <ClInclude Include="gleng\include\eventlistener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gleng\include\componenteventspawner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -41,44 +41,47 @@ public:
 	}
 };
 
-class ComponentAddedEventListener : public IEventListener<ComponentAddedEvent> {
+class ComponentAddedEventListener : public IEventListener<ComponentAddedEvent<TestComponent1>> {
 public:
 	std::vector<Entity> entities;
-	std::vector<type_hash> types;
 	int sumOfEvents = 0;
 
-	virtual void ProcessEvents(const EventIterator<ComponentAddedEvent> &eventIterator) override {
-		for (const ComponentAddedEvent &event : eventIterator) {
+	virtual void ProcessEvents(const EventIterator<ComponentAddedEvent<TestComponent1>> &eventIterator) override {
+		for (const ComponentAddedEvent<TestComponent1> &event : eventIterator) {
 			++sumOfEvents;
 			entities.push_back(event.entity);
-			types.push_back(event.componentType);
 		}
 	}
 };
 
-class ComponentRemovedEventListener : public IEventListener<ComponentRemovedEvent> {
+class ComponentRemovedEventListener : public IEventListener<ComponentRemovedEvent<TestComponent1>> {
 public:
 	std::vector<Entity> entities;
-	std::vector<type_hash> types;
 	int sumOfEvents = 0;
 
-	virtual void ProcessEvents(const EventIterator<ComponentRemovedEvent> &eventIterator) override{
-		for (const ComponentRemovedEvent &event : eventIterator) {
+	virtual void ProcessEvents(const EventIterator<ComponentRemovedEvent<TestComponent1>> &eventIterator) override{
+		for (const ComponentRemovedEvent<TestComponent1> &event : eventIterator) {
 			++sumOfEvents;
 			entities.push_back(event.entity);
-			types.push_back(event.componentType);
 		}
 	}
 };
 
 TEST(Events, TypeID) {
 
-	ASSERT_NE(ComponentAddedEvent::EventTypeID, 0);
-	ASSERT_NE(ComponentRemovedEvent::EventTypeID, 0);
+	ASSERT_NE(ComponentAddedEvent<TestComponent1>::EventTypeID, 0);
+	ASSERT_NE(ComponentRemovedEvent<TestComponent1>::EventTypeID, 0);
+
+	ASSERT_NE(ComponentAddedEvent<TestComponent2>::EventTypeID, 0);
+	ASSERT_NE(ComponentRemovedEvent<TestComponent2>::EventTypeID, 0);
+
+	ASSERT_NE(ComponentAddedEvent<TestComponent1>::EventTypeID, ComponentAddedEvent<TestComponent2>::EventTypeID);
+	ASSERT_NE(ComponentRemovedEvent<TestComponent1>::EventTypeID, ComponentRemovedEvent<TestComponent2>::EventTypeID);
+	
 	ASSERT_NE(EntityCreatedEvent::EventTypeID, 0);
 	ASSERT_NE(EntityDestroyedEvent::EventTypeID, 0);
 
-	ASSERT_NE(ComponentAddedEvent::EventTypeID, ComponentRemovedEvent::EventTypeID);
+	ASSERT_NE(ComponentAddedEvent<TestComponent1>::EventTypeID, ComponentRemovedEvent<TestComponent1>::EventTypeID);
 	ASSERT_NE(EntityCreatedEvent::EventTypeID, EntityDestroyedEvent::EventTypeID);
 }
 
@@ -122,7 +125,7 @@ TEST(Events, CreateEntityEvents) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	for (size_t i = 0; i < numentities; ++i) {
 		entitymanager->CreateEntity();
@@ -151,7 +154,7 @@ TEST(Events, DestroyEntityEvent) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	std::vector<Entity> evec;
 
@@ -185,31 +188,29 @@ TEST(Events, ComponentAddedEvents) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
+
 	ComponentAddedEventListener testListener;
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents = entitymanager->CreateEntitites(numentities);
 
 	for (Entity e : ents) {
-		componentmanager->AddComponent<TestComponent2>(e);
+		componentmanager->AddComponent<TestComponent1>(e);
 	}
 
 	eventmanager->DeliverEvents();
 
 	
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
 	}
 }
 
@@ -220,14 +221,16 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
 
-	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1, TestComponent2>();
 
 	ComponentAddedEventListener testListener;
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
 
@@ -235,12 +238,7 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
@@ -256,31 +254,28 @@ TEST(Events, ComponentRemovedEvents) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
+
 	ComponentRemovedEventListener testListener;
 
-	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1, TestComponent2>();
 
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents = entitymanager->CreateEntitites(numentities, archetype);
 
 	for (Entity e : ents) {
-		componentmanager->RemoveComponent<TestComponent2>(e);
+		componentmanager->RemoveComponent<TestComponent1>(e);
 	}
 
 	eventmanager->DeliverEvents();
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
@@ -293,20 +288,21 @@ TEST(Events, ComponentMoveAddedEvent) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
+
 
 	EntityArchetype archetype2 = EntityArchetype::Create<TestComponent2>();
 	EntityArchetype archetype12 = EntityArchetype::Create<TestComponent1, TestComponent2>();
 
 	ComponentAddedEventListener testListener;
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype2);
 
-	eventmanager->DeliverEvents();
+	eventmanager->RegisterListener(&testListener);
 
 	//register after first events have been delivered
-	eventmanager->RegisterListener(&testListener);
 
 	for (Entity e : ents1) {
 		componentmanager->MoveToArchetype(e, archetype12);
@@ -316,12 +312,7 @@ TEST(Events, ComponentMoveAddedEvent) {
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent1::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
@@ -334,20 +325,21 @@ TEST(Events, ComponentMoveRemovedEvent) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
+
 
 	EntityArchetype archetype2 = EntityArchetype::Create<TestComponent2>();
 	EntityArchetype archetype12 = EntityArchetype::Create<TestComponent1, TestComponent2>();
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype12);
 
-	eventmanager->DeliverEvents();
+	eventmanager->RegisterListener(&testListener);
 
 	//register after first events have been delivered
-	eventmanager->RegisterListener(&testListener);
 
 	for (Entity e : ents1) {
 		componentmanager->MoveToArchetype(e, archetype2);
@@ -357,12 +349,7 @@ TEST(Events, ComponentMoveRemovedEvent) {
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent1::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
@@ -376,19 +363,19 @@ TEST(Events, EntityDestoyComponentRemovedEvent) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
 
-	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1, TestComponent2>();
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
 
-	eventmanager->DeliverEvents();
-
-	//register after first events have been delivered
 	eventmanager->RegisterListener(&testListener);
+	//register after first events have been delivered
 
 	for (Entity e : ents1) {
 		entitymanager->DestroyEntity(e);
@@ -398,12 +385,7 @@ TEST(Events, EntityDestoyComponentRemovedEvent) {
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
@@ -416,18 +398,17 @@ TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 
+	ComponentEventSpawner::instance().RegisterEventSpawnerForComponent<TestComponent1>();
 
-	EntityArchetype archetype = EntityArchetype::Create<TestComponent2>();
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1>();
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 1000;
+	const size_t numentities = 100000;
 
 	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
 
-	eventmanager->DeliverEvents();
-
-	//register after first events have been delivered
 	eventmanager->RegisterListener(&testListener);
 
 
@@ -437,12 +418,7 @@ TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
 
 
 	ASSERT_EQ(testListener.sumOfEvents, numentities);
-	ASSERT_EQ(testListener.types.size(), numentities);
 	ASSERT_EQ(testListener.entities.size(), numentities);
-
-	for (type_hash type : testListener.types) {
-		ASSERT_EQ(type, TestComponent2::ComponentTypeID);
-	}
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
