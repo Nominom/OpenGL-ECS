@@ -18,7 +18,7 @@ TEST(Entities, CreateArrays) {
 	EntityManager *manager = World::GetEntityManager();
 
 	const int entityArrSize = 100;
-	EntityArray entArr = manager->CreateEntitites(entityArrSize);
+	EntityArray entArr = manager->CreateEntities(entityArrSize);
 
 	ASSERT_EQ(entArr.size, entityArrSize) << "Entity array size does not match the requested size";
 
@@ -53,14 +53,47 @@ TEST(Entities, DestroyArraysIDReuse) {
 
 
 	const int entityArrSize = 100;
-	EntityArray entArr = manager->CreateEntitites(entityArrSize);
+	EntityArray entArr = manager->CreateEntities(entityArrSize);
 
-	manager->DestroyEntites(entArr);
+	manager->DestroyEntities(entArr);
 
-	EntityArray entArr2 = manager->CreateEntitites(entityArrSize);
+	EntityArray entArr2 = manager->CreateEntities(entityArrSize);
 
 	for (Entity e : entArr) {
 		ASSERT_TRUE(std::find(entArr2.begin(), entArr2.end(), e) != entArr2.end());
+	}
+}
+
+TEST(Entities, IsAlive) {
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
+
+	ASSERT_FALSE(manager->IsAlive(Entity()));
+
+	Entity e = manager->CreateEntity();
+
+	ASSERT_TRUE(manager->IsAlive(e));
+
+	manager->DestroyEntity(e);
+
+	ASSERT_FALSE(manager->IsAlive(e));
+}
+
+TEST(Entities, IsAliveArrays) {
+	World::Setup();
+	EntityManager *manager = World::GetEntityManager();
+
+
+	EntityArray es = manager->CreateEntities(10000);
+
+	for (Entity e : es) {
+		ASSERT_TRUE(manager->IsAlive(e));
+	}
+
+	manager->DestroyEntities(es);
+
+	for (Entity e : es) {
+		ASSERT_FALSE(manager->IsAlive(e));
 	}
 }
 
@@ -244,3 +277,4 @@ TEST(EntityArchetypes, CreateTemplate) {
 	ASSERT_TRUE(archetype.HasSharedComponentType(TestSharedComponent1::ComponentTypeID));
 	ASSERT_TRUE(archetype.HasSharedComponentType(TestSharedComponent2::ComponentTypeID));
 }
+

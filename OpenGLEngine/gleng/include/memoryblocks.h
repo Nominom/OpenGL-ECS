@@ -87,6 +87,10 @@ public:
 	inline size_t maxSize() {
 		return _maxSize;
 	}
+
+	inline bool HasRoom() {
+		return _size < _maxSize;
+	}
 	ComponentMemoryBlock & operator =(ComponentMemoryBlock&&) = delete;
 	ComponentMemoryBlock & operator =(const ComponentMemoryBlock &) = delete;
 	ComponentMemoryBlock(const ComponentMemoryBlock &) = delete;

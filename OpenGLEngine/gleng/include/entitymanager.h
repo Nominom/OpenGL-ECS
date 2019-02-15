@@ -24,10 +24,11 @@ class EntityManager {
 public:
 	EntityManager(ComponentManager*, EventManager*);
 	Entity CreateEntity();
-	EntityArray CreateEntitites(size_t number);
-	EntityArray CreateEntitites(size_t number, const EntityArchetype&);
+	EntityArray CreateEntities(size_t number);
+	EntityArray CreateEntities(size_t number, const EntityArchetype&);
 	Entity CreateEntity(const EntityArchetype&);
 	void DestroyEntity(const Entity& entity);
-	void DestroyEntites(const EntityArray &entities);
+	void DestroyEntities(const EntityArray &entities);
+	bool IsAlive(const Entity& entity);
 	void Clear();
 };

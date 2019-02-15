@@ -131,7 +131,7 @@ TEST(Events, CreateEntityEvents) {
 		entitymanager->CreateEntity();
 	}
 
-	entitymanager->CreateEntitites(numentities);
+	entitymanager->CreateEntities(numentities);
 
 	eventmanager->DeliverEvents();
 
@@ -166,9 +166,9 @@ TEST(Events, DestroyEntityEvent) {
 		entitymanager->DestroyEntity(e);
 	}
 
-	EntityArray eArr = entitymanager->CreateEntitites(numentities);
+	EntityArray eArr = entitymanager->CreateEntities(numentities);
 
-	entitymanager->DestroyEntites(eArr);
+	entitymanager->DestroyEntities(eArr);
 
 	eventmanager->DeliverEvents();
 
@@ -196,7 +196,7 @@ TEST(Events, ComponentAddedEvents) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents = entitymanager->CreateEntitites(numentities);
+	EntityArray ents = entitymanager->CreateEntities(numentities);
 
 	for (Entity e : ents) {
 		componentmanager->AddComponent<TestComponent1>(e);
@@ -232,7 +232,7 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
+	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
 	eventmanager->DeliverEvents();
 
@@ -265,7 +265,7 @@ TEST(Events, ComponentRemovedEvents) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents = entitymanager->CreateEntitites(numentities, archetype);
+	EntityArray ents = entitymanager->CreateEntities(numentities, archetype);
 
 	for (Entity e : ents) {
 		componentmanager->RemoveComponent<TestComponent1>(e);
@@ -298,7 +298,7 @@ TEST(Events, ComponentMoveAddedEvent) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype2);
+	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype2);
 
 	eventmanager->RegisterListener(&testListener);
 
@@ -335,7 +335,7 @@ TEST(Events, ComponentMoveRemovedEvent) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype12);
+	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype12);
 
 	eventmanager->RegisterListener(&testListener);
 
@@ -372,7 +372,7 @@ TEST(Events, EntityDestoyComponentRemovedEvent) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
+	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
 	eventmanager->RegisterListener(&testListener);
 	//register after first events have been delivered
@@ -407,12 +407,12 @@ TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
 
 	const size_t numentities = 100000;
 
-	EntityArray ents1 = entitymanager->CreateEntitites(numentities, archetype);
+	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
 	eventmanager->RegisterListener(&testListener);
 
 
-	entitymanager->DestroyEntites(ents1);
+	entitymanager->DestroyEntities(ents1);
 
 	eventmanager->DeliverEvents();
 

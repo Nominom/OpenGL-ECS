@@ -11,13 +11,17 @@
 #endif
 
 
+//TODO: invalid block index
 struct ArchetypeBlockIndex {
-	size_t archetypeIndex;
-	size_t blockIndex;
-	size_t elementIndex;
+	bool valid = false;
+	size_t archetypeIndex = 0;
+	size_t blockIndex = 0;
+	size_t elementIndex = 0;
 
 	static ArchetypeBlockIndex Invalid() {
-		return ArchetypeBlockIndex();
+		ArchetypeBlockIndex index;
+		index.valid = false;
+		return index;
 	}
 };
 
@@ -25,6 +29,7 @@ class EntityArchetypeBlock {
 public:
 	EntityArchetype archetype;
 	std::vector<ComponentMemoryBlock*> archetypeBlocks;
+	int lastUsedIdx = -1;
 
 	inline EntityArchetypeBlock(EntityArchetype type) {
 		archetype = type;
@@ -43,14 +48,19 @@ public:
 	}
 
 	inline size_t GetOrCreateFreeBlockIndex() {
+		if (lastUsedIdx != -1 && archetypeBlocks[lastUsedIdx]->HasRoom()) {
+			return lastUsedIdx;
+		}
 		for (size_t i = 0; i < archetypeBlocks.size(); i++) {
 			ComponentMemoryBlock* block = archetypeBlocks[i];
-			if (block->size() < block->maxSize()) {
+			if (block->HasRoom()) {
+				lastUsedIdx = i;
 				return i;
 			}
 		}
 		//couldn't find free block
-		return CreateNewBlockIndex();
+		lastUsedIdx = CreateNewBlockIndex();
+		return lastUsedIdx;
 	}
 };
 
@@ -69,6 +79,7 @@ class ComponentManager {
 
 	inline ArchetypeBlockIndex GetFreeBlockOf(const EntityArchetype& archetype) {
 		ArchetypeBlockIndex newArchIndex;
+		newArchIndex.valid = true;
 
 		auto found = _archetypeHashIndices.find(archetype.ArchetypeHash());
 		if (found == _archetypeHashIndices.end()) {
@@ -85,12 +96,13 @@ class ComponentManager {
 
 	inline EntityArchetypeBlock& FindArchetypeFor(const Entity &e) {
 		const ArchetypeBlockIndex& idx = _entityMap[e.ID];
+		assert(idx.valid);
 		return _archetypes[idx.archetypeIndex];
 	}
 
 	inline ComponentMemoryBlock* FindComponentBlockFor(const Entity& e) {
 		const ArchetypeBlockIndex& idx = _entityMap[e.ID];
-
+		assert(idx.valid);
 		return _archetypes[idx.archetypeIndex].archetypeBlocks[idx.blockIndex];
 	}
 
@@ -240,6 +252,11 @@ public:
 		_entityMap[e.ID] = ArchetypeBlockIndex::Invalid();
 	}
 
+	inline bool IsEntityValid(const Entity& e) {
+		ArchetypeBlockIndex idx = FindBlockIndexFor(e);
+		return idx.valid;
+	}
+
 	template<class T>
 	inline void AddComponentCopy(const Entity& e, const T& original) {
 		CHECK_T_IS_COMPONENT;
@@ -254,8 +271,10 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(oldBlock.valid);
 		assert(!HasComponent<T>(e));
-
+		
+		newBlock.valid = true;
 		newBlock.archetypeIndex = ArchetypeAddComponent(
 			GetArchetype(oldBlock), 
 			ComponentType::Get<T>());
@@ -289,9 +308,11 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(oldBlock.valid);
 		assert(HasComponent<T>(e));
 
 
+		newBlock.valid = true;
 		newBlock.archetypeIndex = ArchetypeRemoveComponent(
 			GetArchetype(oldBlock),
 			ComponentType::Get<T>());
@@ -317,6 +338,9 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(oldBlock.valid);
+
+		newBlock.valid = true;
 		newBlock.archetypeIndex = FindOrCreateArchetypeBlock(archetype);
 
 		newBlock.blockIndex = _archetypes[newBlock.archetypeIndex].GetOrCreateFreeBlockIndex();
@@ -356,6 +380,8 @@ public:
 
 		ArchetypeBlockIndex index = FindBlockIndexFor(e);
 
+		assert(index.valid);
+
 		return _archetypes[index.archetypeIndex]
 			.archetypeBlocks[index.blockIndex]
 			->GetComponent<T>(index.elementIndex);
@@ -379,10 +405,10 @@ public:
 	}
 
 	template<class T>
-	inline T* DestroySharedComponent() {
+	inline void DestroySharedComponent(T* component) {
 		CHECK_T_IS_SHARED_COMPONENT;
 		static SharedComponentAllocator &allocator = SharedComponentAllocator::instance();
-		return allocator.Allocate<T>();
+		return allocator.Deallocate<T>(component);
 	}
 
 	template<class T>
@@ -393,7 +419,10 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(oldBlock.valid);
 		assert(!HasSharedComponent<T>(e));
+
+		newBlock.valid = true;
 
 		newBlock.archetypeIndex = ArchetypeAddSharedComponent(GetArchetype(oldBlock), component);
 
@@ -419,7 +448,10 @@ public:
 
 		ArchetypeBlockIndex newBlock;
 
+		assert(oldBlock.valid);
 		assert(HasSharedComponent<T>(e));
+
+		newBlock.valid = true;
 
 		newBlock.archetypeIndex = ArchetypeRemoveSharedComponent<T>(GetArchetype(oldBlock));
 

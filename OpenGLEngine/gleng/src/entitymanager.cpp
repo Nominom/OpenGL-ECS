@@ -19,7 +19,7 @@ Entity EntityManager::CreateEntity() {
 	return entity;
 }
 
-EntityArray EntityManager::CreateEntitites(size_t number) {
+EntityArray EntityManager::CreateEntities(size_t number) {
 	EntityArray arr;
 	arr.size = number;
 
@@ -47,7 +47,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype) {
 	return entity;
 }
 
-EntityArray EntityManager::CreateEntitites(size_t number, const EntityArchetype &archetype) {
+EntityArray EntityManager::CreateEntities(size_t number, const EntityArchetype &archetype) {
 	EntityArray arr;
 	arr.size = number;
 
@@ -70,7 +70,9 @@ void EntityManager::Clear() {
 }
 
 void EntityManager::DestroyEntity(const Entity& entity) {
+	//TODO: check that is invalid block index in componentmanager
 	//assert(std::find(freeIDs.begin(), freeIDs.end(), entity.ID) == freeIDs.end());
+	assert(_componentmanager->IsEntityValid(entity));
 	assert(entity.ID != ENTITY_NULL_ID);
 
 	_componentmanager->RemoveEntity(entity);
@@ -78,9 +80,10 @@ void EntityManager::DestroyEntity(const Entity& entity) {
 	_eventmanager->QueueEvent(EntityDestroyedEvent(entity));
 }
 
-void EntityManager::DestroyEntites(const EntityArray& entities) {
-
+void EntityManager::DestroyEntities(const EntityArray& entities) {
+	//TODO: check that is invalid block index in componentmanager
 	for (const Entity& entity : entities) {
+		assert(_componentmanager->IsEntityValid(entity));
 		//assert(std::find(freeIDs.begin(), freeIDs.end(), entity.ID) == freeIDs.end());
 		assert(entity.ID != ENTITY_NULL_ID);
 
@@ -88,5 +91,9 @@ void EntityManager::DestroyEntites(const EntityArray& entities) {
 		freeIDs.push_back(entity.ID);
 		_eventmanager->QueueEvent(EntityDestroyedEvent(entity));
 	}
+}
+
+bool EntityManager::IsAlive(const Entity & entity){
+	return _componentmanager->IsEntityValid(entity);
 }
 

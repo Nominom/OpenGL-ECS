@@ -75,7 +75,7 @@ TEST(Components, AddToManyIndividually) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 	const size_t numents = 10000;
-	EntityArray arr = entitymanager->CreateEntitites(numents);
+	EntityArray arr = entitymanager->CreateEntities(numents);
 
 	size_t i = 1;
 	for (Entity e : arr) {
@@ -102,7 +102,7 @@ TEST(Components, RemoveFromManyIndividually) {
 	EntityManager *entitymanager = World::GetEntityManager();
 	ComponentManager *componentmanager = World::GetComponentManager();
 	const size_t numents = 10000;
-	EntityArray arr = entitymanager->CreateEntitites(numents);
+	EntityArray arr = entitymanager->CreateEntities(numents);
 
 	size_t i = 1;
 	for (Entity e : arr) {
@@ -158,7 +158,7 @@ TEST(Components, MoveManyIndividually) {
 	ComponentManager *componentmanager = World::GetComponentManager();
 
 	const size_t numents = 10000;
-	EntityArray arr = entitymanager->CreateEntitites(numents);
+	EntityArray arr = entitymanager->CreateEntities(numents);
 
 	EntityArchetype archetype0 = EntityArchetype();
 	EntityArchetype archetype1 = archetype0.AddComponent(ComponentType::Get<TestComponent1>());
@@ -223,7 +223,7 @@ TEST(Components, CreateEntityFromArchetype) {
 	Entity entity = entitymanager->CreateEntity(archetype);
 
 	const size_t numents = 10000;
-	EntityArray arr = entitymanager->CreateEntitites(numents, archetype);
+	EntityArray arr = entitymanager->CreateEntities(numents, archetype);
 
 	ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(entity));
 	ASSERT_TRUE(componentmanager->HasComponent<TestComponent2>(entity));

@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include "component.h"
+#include <functional>
 
 #ifndef ECS_NO_TSL
 #include "tsl/robin_map.h"
@@ -49,9 +50,22 @@ class EntityArchetype {
 	tsl::robin_map<type_hash, void*, util::typehasher> sharedComponents;
 #endif // ECS_NO_TSL
 
-
-	void GenerateHash();
 	type_hash _archetypeHash = 0;
+
+	inline void GenerateHash() {
+		type_hash finalHash = 0;
+		for (auto hash : componentTypesMemory) {
+			finalHash ^= hash.first;
+		}
+		static std::hash<void*> hasher;
+		for (auto pair : sharedComponents) {
+			size_t valueHash = hasher(pair.second);
+			finalHash ^= pair.first;
+			finalHash ^= valueHash;
+		}
+		_archetypeHash = finalHash;
+	}
+
 public:
 	inline EntityArchetype() {
 		_archetypeHash = 0;
@@ -134,7 +148,7 @@ public:
 	}
 
 #ifdef ECS_NO_TSL
-	inline const std::unordered_map<type_hash, size_t> &GetComponentTypes() const {
+	inline const std::unordered_map<type_hash, size_t, util::typehasher> &GetComponentTypes() const {
 		return componentTypesMemory;
 }
 #else

@@ -275,7 +275,7 @@ TEST(ComponentMemoryBlock, MoveMany) {
 
 	const size_t numents = 20;
 
-	EntityArray arr = entitymanager->CreateEntitites(numents);
+	EntityArray arr = entitymanager->CreateEntities(numents);
 	int i = 0;
 	for (Entity e : arr) {
 		ASSERT_EQ(i, memblock1.AddEntity(e));

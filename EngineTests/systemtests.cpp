@@ -132,7 +132,7 @@ TEST(ComponentSystems, RegisterSystem) {
 
 	
 
-	EntityArray arr = entitymanager->CreateEntitites(1000);
+	EntityArray arr = entitymanager->CreateEntities(1000);
 
 	for (Entity e : arr) {
 		componentmanager->MoveToArchetype(e, archetype);
@@ -168,13 +168,13 @@ TEST(ComponentSystems, MultipleSystems) {
 
 
 
-	EntityArray arr12 = entitymanager->CreateEntitites(1000);
+	EntityArray arr12 = entitymanager->CreateEntities(1000);
 
 	for (Entity e : arr12) {
 		componentmanager->MoveToArchetype(e, archetype12);
 	}
 
-	EntityArray arr1 = entitymanager->CreateEntitites(1000);
+	EntityArray arr1 = entitymanager->CreateEntities(1000);
 
 	for (Entity e : arr1) {
 		componentmanager->MoveToArchetype(e, archetype1);
@@ -216,7 +216,7 @@ TEST(ComponentSystems, MultipleSystems) {
 	EntityArchetype archetype =
 		EntityArchetype(ComponentType::Get<TestComponent1>()).AddSharedComponent(&shared1);
 
-	EntityArray arr = entitymanager->CreateEntitites(4000);
+	EntityArray arr = entitymanager->CreateEntities(4000);
 
 	for (Entity e : arr) {
 		componentmanager->MoveToArchetype(e, archetype);
@@ -264,13 +264,13 @@ TEST(ComponentSystems, MultipleSystems) {
 
 	 const size_t numents = 1000;
 
-	 EntityArray arr12 = entitymanager->CreateEntitites(numents, archetype12);
+	 EntityArray arr12 = entitymanager->CreateEntities(numents, archetype12);
 
-	 EntityArray arr1 = entitymanager->CreateEntitites(numents, archetype1);
+	 EntityArray arr1 = entitymanager->CreateEntities(numents, archetype1);
 
-	 EntityArray arr2 = entitymanager->CreateEntitites(numents, archetype2);
+	 EntityArray arr2 = entitymanager->CreateEntities(numents, archetype2);
 
-	 EntityArray arr3 = entitymanager->CreateEntitites(numents, archetype3);
+	 EntityArray arr3 = entitymanager->CreateEntities(numents, archetype3);
 
 
 	 systemmanager->RegisterComponentSystem(new TestSystem4());

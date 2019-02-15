@@ -68,9 +68,13 @@ TEST(SharedComponents, Destructor) {
 	TestSharedComponentWithDestructor *component2 = componentmanager->CreateSharedComponent<TestSharedComponentWithDestructor>();
 
 
+	componentmanager->DestroySharedComponent(component);
+	componentmanager->DestroySharedComponent(component1);
+	componentmanager->DestroySharedComponent(component2);
+	/*
 	SharedComponentAllocator::instance().Deallocate(component);
 	SharedComponentAllocator::instance().Deallocate(component1);
-	SharedComponentAllocator::instance().Deallocate(component2);
+	SharedComponentAllocator::instance().Deallocate(component2);*/
 
 
 	ASSERT_EQ(TestSharedComponentWithDestructor::numDestructions, 3);

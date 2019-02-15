@@ -63,7 +63,7 @@ TEST(ComponentDatablock, Components) {
 		.AddSharedComponent(&shared1)
 		.AddSharedComponent(&shared2);
 
-	EntityArray arr = entitymanager->CreateEntitites(20);
+	EntityArray arr = entitymanager->CreateEntities(20);
 
 	ComponentMemoryBlock block;
 	block.Initialize(archetype_all);
@@ -98,7 +98,7 @@ TEST(ComponentDatablock, Entities) {
 		.AddSharedComponent(&shared1)
 		.AddSharedComponent(&shared2);
 
-	EntityArray arr = entitymanager->CreateEntitites(20);
+	EntityArray arr = entitymanager->CreateEntities(20);
 
 	ComponentMemoryBlock block;
 	block.Initialize(archetype_all);
@@ -129,7 +129,7 @@ TEST(ComponentDatablock, SharedComponents) {
 		.AddSharedComponent(&shared1)
 		.AddSharedComponent(&shared2);
 
-	EntityArray arr = entitymanager->CreateEntitites(10);
+	EntityArray arr = entitymanager->CreateEntities(10);
 
 	ComponentMemoryBlock block;
 	block.Initialize(archetype_all);
