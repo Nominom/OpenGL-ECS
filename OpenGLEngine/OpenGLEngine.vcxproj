@@ -118,16 +118,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gleng\src\component.cpp" />
-    <ClCompile Include="gleng\src\componentmanager.cpp" />
-    <ClCompile Include="gleng\src\entityarchetypes.cpp" />
-    <ClCompile Include="gleng\src\entitymanager.cpp" />
-    <ClCompile Include="gleng\src\memoryblocks.cpp" />
-    <ClCompile Include="gleng\src\system.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="gleng\include\component.h" />
     <ClInclude Include="gleng\include\componenteventspawner.h" />
+    <ClInclude Include="gleng\include\componentfilter.h" />
     <ClInclude Include="gleng\include\componentiterator.h" />
     <ClInclude Include="gleng\include\componentmanager.h" />
     <ClInclude Include="gleng\include\entity.h" />

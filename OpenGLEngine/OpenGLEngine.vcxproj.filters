@@ -15,26 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gleng\src\entitymanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gleng\src\entityarchetypes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gleng\src\component.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gleng\src\componentmanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gleng\src\memoryblocks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gleng\src\system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="gleng\include\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -81,6 +61,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gleng\include\componenteventspawner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gleng\include\componentfilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

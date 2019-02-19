@@ -5,6 +5,7 @@
 #include "memoryblocks.h"
 #include "eventmanager.h"
 #include "componenteventspawner.h"
+#include "componentfilter.h"
 
 #ifndef ECS_NO_TSL
 #include "tsl/robin_map.h"
