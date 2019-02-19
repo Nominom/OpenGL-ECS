@@ -6,7 +6,7 @@
 #include <functional>
 
 #ifndef ECS_NO_TSL
-#include "tsl/robin_map.h"
+#include "../tsl/robin_map.h"
 #endif
 
 struct ComponentType {

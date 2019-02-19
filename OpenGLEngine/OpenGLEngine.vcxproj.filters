@@ -15,55 +15,55 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gleng\include\entity.h">
+    <ClInclude Include="include\gleng\component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\entitymanager.h">
+    <ClInclude Include="include\gleng\componenteventspawner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\world.h">
+    <ClInclude Include="include\gleng\componentfilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\gleng.h">
+    <ClInclude Include="include\gleng\componentiterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\component.h">
+    <ClInclude Include="include\gleng\componentmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\entityarchetypes.h">
+    <ClInclude Include="include\gleng\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\componentmanager.h">
+    <ClInclude Include="include\gleng\entityarchetypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\util.h">
+    <ClInclude Include="include\gleng\entitymanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\memoryblocks.h">
+    <ClInclude Include="include\gleng\eventlistener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\componentiterator.h">
+    <ClInclude Include="include\gleng\eventmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\system.h">
+    <ClInclude Include="include\gleng\events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\systemmanager.h">
+    <ClInclude Include="include\gleng\gleng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\events.h">
+    <ClInclude Include="include\gleng\memoryblocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\eventmanager.h">
+    <ClInclude Include="include\gleng\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\eventlistener.h">
+    <ClInclude Include="include\gleng\systemmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\componenteventspawner.h">
+    <ClInclude Include="include\gleng\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gleng\include\componentfilter.h">
+    <ClInclude Include="include\gleng\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
