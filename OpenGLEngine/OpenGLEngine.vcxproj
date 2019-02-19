@@ -121,7 +121,6 @@
     <ClInclude Include="include\gleng\component.h" />
     <ClInclude Include="include\gleng\componenteventspawner.h" />
     <ClInclude Include="include\gleng\componentfilter.h" />
-    <ClInclude Include="include\gleng\componentiterator.h" />
     <ClInclude Include="include\gleng\componentmanager.h" />
     <ClInclude Include="include\gleng\entity.h" />
     <ClInclude Include="include\gleng\entityarchetypes.h" />

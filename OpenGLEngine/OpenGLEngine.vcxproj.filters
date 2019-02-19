@@ -24,9 +24,6 @@
     <ClInclude Include="include\gleng\componentfilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\componentiterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\gleng\componentmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

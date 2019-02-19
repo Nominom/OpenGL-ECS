@@ -4,42 +4,45 @@
 
 #define CHECK_T_IS_EVENT static_assert(std::is_base_of<IEvent<T>, T>::value, "T is not of type Event");
 
+namespace gleng {
 
-template <class T>
-struct IEvent {
-	static const type_hash EventTypeID;
-};
-
-
-template <class T>
-const type_hash IEvent<T>::EventTypeID = util::GetTypeHash<T>();
+	template <class T>
+	struct IEvent {
+		static const type_hash EventTypeID;
+	};
 
 
-struct EntityCreatedEvent : public IEvent<EntityCreatedEvent> {
-	Entity entity;
+	template <class T>
+	const type_hash IEvent<T>::EventTypeID = util::GetTypeHash<T>();
 
-	EntityCreatedEvent() = default;
-	inline EntityCreatedEvent(const Entity& e) {
-		entity = e;
-	}
-};
 
-struct EntityDestroyedEvent : public IEvent<EntityDestroyedEvent> {
-	Entity entity;
+	struct EntityCreatedEvent : public IEvent<EntityCreatedEvent> {
+		Entity entity;
 
-	EntityDestroyedEvent() = default;
-	inline EntityDestroyedEvent(const Entity& e) {
-		entity = e;
-	}
-};
+		EntityCreatedEvent() = default;
+		inline EntityCreatedEvent(const Entity& e) {
+			entity = e;
+		}
+	};
 
-template <class T>
-struct ComponentAddedEvent : public IEvent<ComponentAddedEvent<T>> {
-	Entity entity;
-};
+	struct EntityDestroyedEvent : public IEvent<EntityDestroyedEvent> {
+		Entity entity;
 
-template <class T>
-struct ComponentRemovedEvent : public IEvent<ComponentRemovedEvent<T>> {
-	Entity entity;
-};
+		EntityDestroyedEvent() = default;
+		inline EntityDestroyedEvent(const Entity& e) {
+			entity = e;
+		}
+	};
 
+	template <class T>
+	struct ComponentAddedEvent : public IEvent<ComponentAddedEvent<T>> {
+		Entity entity;
+	};
+
+	template <class T>
+	struct ComponentRemovedEvent : public IEvent<ComponentRemovedEvent<T>> {
+		Entity entity;
+	};
+
+
+}

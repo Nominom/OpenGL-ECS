@@ -7,6 +7,8 @@
 #include "gtest/gtest.h"
 #include <gleng.h>
 
+using namespace gleng;
+
 struct TestComponent1 : public IComponent<TestComponent1> {
 	int testValue;
 };

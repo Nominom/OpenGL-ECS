@@ -11,22 +11,24 @@
 
 typedef size_t type_hash;
 
-namespace util {
+namespace gleng {
 
-	template <class T>
-	type_hash GetTypeHash() {
-		static type_hash typeId = typeid(T).hash_code();
-		return typeId;
-	}
+	namespace util {
 
-
-	struct typehasher {
-		std::size_t operator()(const type_hash hash) const {
-			return hash;
+		template <class T>
+		type_hash GetTypeHash() {
+			static type_hash typeId = typeid(T).hash_code();
+			return typeId;
 		}
-	};
-}
 
+
+		struct typehasher {
+			::std::size_t operator()(const type_hash hash) const {
+				return hash;
+			}
+		};
+	}
+}
 /*namespace std {
 
 	template <>

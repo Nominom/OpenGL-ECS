@@ -2,47 +2,52 @@
 #include <stdint.h>
 #include <memory>
 
-constexpr uint32_t ENTITY_NULL_ID = 0;
+namespace gleng {
 
-struct Entity {
-	uint32_t ID = ENTITY_NULL_ID;
-	//uint_32_t version; //TODO
+	constexpr uint32_t ENTITY_NULL_ID = 0;
 
-	inline bool operator ==(const Entity &b) const {
-		return ID == b.ID;
-	}
-};
+	struct Entity {
+		uint32_t ID = ENTITY_NULL_ID;
+		//uint_32_t version; //TODO
 
-struct EntityArray {
-	size_t size = 0;
-	std::shared_ptr<Entity[]> data;
+		inline bool operator ==(const Entity &b) const {
+			return ID == b.ID;
+		}
+	};
 
-	inline Entity operator [](size_t index) const{
-		return data[index];
-	}
+	struct EntityArray {
+		size_t size = 0;
+		std::shared_ptr<Entity[]> data;
 
-	inline Entity* begin() {
-		return &data[0];
-	}
+		inline Entity operator [](size_t index) const {
+			return data[index];
+		}
 
-	inline Entity* end() {
-		return begin() + size;
-	}
+		inline Entity* begin() {
+			return &data[0];
+		}
 
-	inline const Entity* begin() const{
-		return &data[0];
-	}
+		inline Entity* end() {
+			return begin() + size;
+		}
 
-	inline const Entity* end() const{
-		return begin() + size;
-	}
-};
+		inline const Entity* begin() const {
+			return &data[0];
+		}
+
+		inline const Entity* end() const {
+			return begin() + size;
+		}
+	};
+
+	
+}
 
 namespace std {
 
 	template <>
-	struct hash<Entity> {
-		std::size_t operator()(const Entity& e) const {
+	struct hash<gleng::Entity> {
+		std::size_t operator()(const gleng::Entity& e) const {
 			static std::hash<uint32_t> hasher;
 			return hasher(e.ID);
 		}
