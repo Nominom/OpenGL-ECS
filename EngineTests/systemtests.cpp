@@ -138,7 +138,7 @@ TEST(ComponentSystems, RegisterSystem) {
 		componentmanager->MoveToArchetype(e, archetype);
 	}
 
-	systemmanager->RegisterComponentSystem(new TestSystem());
+	systemmanager->RegisterSystem(new TestSystem());
 
 	const int numUpdates = 10;
 
@@ -180,8 +180,8 @@ TEST(ComponentSystems, MultipleSystems) {
 		componentmanager->MoveToArchetype(e, archetype1);
 	}
 
-	systemmanager->RegisterComponentSystem(new TestSystem());
-	systemmanager->RegisterComponentSystem(new TestSystem2());
+	systemmanager->RegisterSystem(new TestSystem());
+	systemmanager->RegisterSystem(new TestSystem2());
 
 	const int numUpdates = 10;
 
@@ -222,7 +222,7 @@ TEST(ComponentSystems, MultipleSystems) {
 		componentmanager->MoveToArchetype(e, archetype);
 	}
 
-	systemmanager->RegisterComponentSystem(new TestSystem3());
+	systemmanager->RegisterSystem(new TestSystem3());
 
 	const int numUpdates = 100;
 
@@ -273,7 +273,7 @@ TEST(ComponentSystems, MultipleSystems) {
 	 EntityArray arr3 = entitymanager->CreateEntities(numents, archetype3);
 
 
-	 systemmanager->RegisterComponentSystem(new TestSystem4());
+	 systemmanager->RegisterSystem(new TestSystem4());
 
 	 const int numUpdates = 10;
 
@@ -297,3 +297,6 @@ TEST(ComponentSystems, MultipleSystems) {
 		 ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
 	 }
  }
+
+ //TODO Test BeforeWork & AfterWork
+ //TODO ISystem tests

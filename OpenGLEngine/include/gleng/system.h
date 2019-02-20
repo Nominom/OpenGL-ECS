@@ -99,7 +99,9 @@ namespace gleng {
 	public:
 		bool running = true;
 		virtual void DoWork(double deltaTime, const ComponentDatablock<Components...>&) = 0;
-		virtual inline void Update(double deltaTime) {}
+		virtual inline void BeforeWork(double deltaTime) {}
+		virtual inline void AfterWork(double deltaTime) {}
+
 
 
 		virtual inline ComponentFilter GetFilter() {
@@ -109,5 +111,9 @@ namespace gleng {
 		}
 	};
 
-
+	class ISystem {
+	public:
+		bool running = true;
+		virtual void Update(double deltaTime) {}
+	};
 }
