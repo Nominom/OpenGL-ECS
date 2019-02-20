@@ -44,5 +44,15 @@ namespace gleng {
 		Entity entity;
 	};
 
+	template <class T>
+	struct SharedComponentAddedEvent : public IEvent<SharedComponentAddedEvent<T>> {
+		Entity entity;
+		T* component;
+	};
 
+	template <class T>
+	struct SharedComponentRemovedEvent : public IEvent<SharedComponentRemovedEvent<T>> {
+		Entity entity;
+		T* component;
+	};
 }

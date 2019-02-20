@@ -67,6 +67,36 @@ public:
 	}
 };
 
+class SharedComponentAddedEventListener : public IEventListener<SharedComponentAddedEvent<TestSharedComponent1>> {
+public:
+	std::vector<Entity> entities;
+	std::vector<TestSharedComponent1*> components;
+	int sumOfEvents = 0;
+
+	virtual void ProcessEvents(const EventIterator<SharedComponentAddedEvent<TestSharedComponent1>> &eventIterator) override {
+		for (const SharedComponentAddedEvent<TestSharedComponent1> &event : eventIterator) {
+			++sumOfEvents;
+			entities.push_back(event.entity);
+			components.push_back(event.component);
+		}
+	}
+};
+
+class SharedComponentRemovedEventListener : public IEventListener<SharedComponentRemovedEvent<TestSharedComponent1>> {
+public:
+	std::vector<Entity> entities;
+	std::vector<TestSharedComponent1*> components;
+	int sumOfEvents = 0;
+
+	virtual void ProcessEvents(const EventIterator<SharedComponentRemovedEvent<TestSharedComponent1>> &eventIterator) override {
+		for (const SharedComponentRemovedEvent<TestSharedComponent1> &event : eventIterator) {
+			++sumOfEvents;
+			entities.push_back(event.entity);
+			components.push_back(event.component);
+		}
+	}
+};
+
 TEST(Events, TypeID) {
 
 	ASSERT_NE(ComponentAddedEvent<TestComponent1>::EventTypeID, 0);
@@ -94,7 +124,7 @@ TEST(Events, SendEvents) {
 
 	eventmanager->RegisterListener(&testListener);
 	const int numEvents = 1000;
-	const int numIterations = 1000;
+	const int numIterations = 100;
 
 	unsigned long long sum = 0;
 
@@ -125,7 +155,7 @@ TEST(Events, CreateEntityEvents) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	for (size_t i = 0; i < numentities; ++i) {
 		entitymanager->CreateEntity();
@@ -154,7 +184,7 @@ TEST(Events, DestroyEntityEvent) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	std::vector<Entity> evec;
 
@@ -194,7 +224,7 @@ TEST(Events, ComponentAddedEvents) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents = entitymanager->CreateEntities(numentities);
 
@@ -210,7 +240,6 @@ TEST(Events, ComponentAddedEvents) {
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
-		ASSERT_TRUE(componentmanager->HasComponent<TestComponent1>(e));
 	}
 }
 
@@ -230,7 +259,7 @@ TEST(Events, EntityArchetypeCreateComponentAdded) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
@@ -263,7 +292,7 @@ TEST(Events, ComponentRemovedEvents) {
 
 	eventmanager->RegisterListener(&testListener);
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents = entitymanager->CreateEntities(numentities, archetype);
 
@@ -296,7 +325,7 @@ TEST(Events, ComponentMoveAddedEvent) {
 
 	ComponentAddedEventListener testListener;
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype2);
 
@@ -333,7 +362,7 @@ TEST(Events, ComponentMoveRemovedEvent) {
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype12);
 
@@ -370,7 +399,7 @@ TEST(Events, EntityDestoyComponentRemovedEvent) {
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
@@ -405,7 +434,7 @@ TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
 
 	ComponentRemovedEventListener testListener;
 
-	const size_t numentities = 100000;
+	const size_t numentities = 10000;
 
 	EntityArray ents1 = entitymanager->CreateEntities(numentities, archetype);
 
@@ -422,5 +451,210 @@ TEST(Events, EntityArrayDestoyComponentRemovedEvent) {
 
 	for (Entity e : testListener.entities) {
 		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+}
+
+
+TEST(Events, SharedComponentAddedEvents) {
+
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	ComponentEventSpawner::instance().RegisterEventSpawnerForSharedComponent<TestSharedComponent1>();
+
+	SharedComponentAddedEventListener testListener;
+
+	TestSharedComponent1 *shared1 = componentmanager->CreateSharedComponent<TestSharedComponent1>();
+
+	eventmanager->RegisterListener(&testListener);
+
+	const size_t numentities = 10000;
+
+	EntityArray ents = entitymanager->CreateEntities(numentities);
+
+	for (Entity e : ents) {
+		componentmanager->AddSharedComponent(e, shared1);
+	}
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testListener.sumOfEvents, numentities);
+	ASSERT_EQ(testListener.entities.size(), numentities);
+	ASSERT_EQ(testListener.components.size(), numentities);
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testListener.components) {
+		ASSERT_EQ(c, shared1);
+	}
+}
+
+TEST(Events, SharedComponentRemovedEvents) {
+
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	ComponentEventSpawner::instance().RegisterEventSpawnerForSharedComponent<TestSharedComponent1>();
+
+	SharedComponentRemovedEventListener testListener;
+
+	TestSharedComponent1 *shared1 = componentmanager->CreateSharedComponent<TestSharedComponent1>();
+
+	eventmanager->RegisterListener(&testListener);
+
+	const size_t numentities = 10000;
+
+	EntityArray ents = entitymanager->CreateEntities(numentities);
+
+	for (Entity e : ents) {
+		componentmanager->AddSharedComponent(e, shared1);
+	}
+
+	for (Entity e : ents) {
+		componentmanager->RemoveSharedComponent<TestSharedComponent1>(e);
+	}
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testListener.sumOfEvents, numentities);
+	ASSERT_EQ(testListener.entities.size(), numentities);
+	ASSERT_EQ(testListener.components.size(), numentities);
+
+	for (Entity e : testListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testListener.components) {
+		ASSERT_EQ(c, shared1);
+	}
+}
+
+
+TEST(Events, SharedComponentEntityArchetypeCreateDestroy) {
+
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	ComponentEventSpawner::instance().RegisterEventSpawnerForSharedComponent<TestSharedComponent1>();
+
+	SharedComponentAddedEventListener testAddedListener;
+	SharedComponentRemovedEventListener testRemovedListener;
+
+	TestSharedComponent1 *shared1 = componentmanager->CreateSharedComponent<TestSharedComponent1>();
+
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1>(shared1);
+
+
+	eventmanager->RegisterListener(&testAddedListener);
+	eventmanager->RegisterListener(&testRemovedListener);
+
+
+	const size_t numentities = 10000;
+
+	EntityArray ents = entitymanager->CreateEntities(numentities, archetype);
+
+	entitymanager->DestroyEntities(ents);
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testAddedListener.sumOfEvents, numentities);
+	ASSERT_EQ(testAddedListener.entities.size(), numentities);
+	ASSERT_EQ(testAddedListener.components.size(), numentities);
+
+	for (Entity e : testAddedListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testAddedListener.components) {
+		ASSERT_EQ(c, shared1);
+	}
+
+	ASSERT_EQ(testRemovedListener.sumOfEvents, numentities);
+	ASSERT_EQ(testRemovedListener.entities.size(), numentities);
+	ASSERT_EQ(testRemovedListener.components.size(), numentities);
+
+	for (Entity e : testRemovedListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testRemovedListener.components) {
+		ASSERT_EQ(c, shared1);
+	}
+}
+
+
+TEST(Events, SharedComponentMove) {
+
+	World::Setup();
+	EventManager *eventmanager = World::GetEventManager();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+
+	ComponentEventSpawner::instance().RegisterEventSpawnerForSharedComponent<TestSharedComponent1>();
+
+	SharedComponentAddedEventListener testAddedListener;
+	SharedComponentRemovedEventListener testRemovedListener;
+
+	TestSharedComponent1 *shared1 = componentmanager->CreateSharedComponent<TestSharedComponent1>();
+
+
+	EntityArchetype archetype1 = EntityArchetype::Create<TestComponent1>();
+	EntityArchetype archetype2 = EntityArchetype::Create<TestComponent1>(shared1);
+	EntityArchetype archetype0 = EntityArchetype();
+
+
+	eventmanager->RegisterListener(&testAddedListener);
+	eventmanager->RegisterListener(&testRemovedListener);
+
+
+	const size_t numentities = 10000;
+
+	EntityArray ents = entitymanager->CreateEntities(numentities, archetype1);
+
+	for (Entity e : ents) {
+		componentmanager->MoveToArchetype(e, archetype2);
+	}
+
+	for (Entity e : ents) {
+		componentmanager->MoveToArchetype(e, archetype0);
+	}
+
+	eventmanager->DeliverEvents();
+
+
+	ASSERT_EQ(testAddedListener.sumOfEvents, numentities);
+	ASSERT_EQ(testAddedListener.entities.size(), numentities);
+	ASSERT_EQ(testAddedListener.components.size(), numentities);
+
+	for (Entity e : testAddedListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testAddedListener.components) {
+		ASSERT_EQ(c, shared1);
+	}
+
+	ASSERT_EQ(testRemovedListener.sumOfEvents, numentities);
+	ASSERT_EQ(testRemovedListener.entities.size(), numentities);
+	ASSERT_EQ(testRemovedListener.components.size(), numentities);
+
+	for (Entity e : testRemovedListener.entities) {
+		ASSERT_NE(e.ID, ENTITY_NULL_ID);
+	}
+
+	for (TestSharedComponent1 *c : testRemovedListener.components) {
+		ASSERT_EQ(c, shared1);
 	}
 }

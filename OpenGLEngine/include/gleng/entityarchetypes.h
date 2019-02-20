@@ -153,9 +153,17 @@ namespace gleng {
 		inline const std::unordered_map<type_hash, size_t, util::typehasher> &GetComponentTypes() const {
 			return componentTypesMemory;
 		}
+
+		inline const std::unordered_map<type_hash, void*, util::typehasher> &GetSharedComponents() const {
+			return sharedComponents;
+		}
 #else
 		inline const tsl::robin_map<type_hash, size_t, util::typehasher> &GetComponentTypes() const {
 			return componentTypesMemory;
+		}
+
+		inline const tsl::robin_map<type_hash, void*, util::typehasher> &GetSharedComponents() const {
+			return sharedComponents;
 		}
 #endif // ECS_NO_TSL
 

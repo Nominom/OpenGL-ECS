@@ -228,12 +228,11 @@ namespace gleng {
 
 #ifndef ECS_NO_COMPONENT_EVENTS
 			for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
-
 				ComponentEventSpawner::instance().ComponentAdded(component.first, e, _eventmanager);
-				/*ComponentAddedEvent ev;
-				ev.entity = e;
-				ev.componentType = component.first;
-				_eventmanager->QueueEvent(ev);*/
+			}
+
+			for (std::pair<type_hash, void*> sharedComponent : _archetypes[idx.archetypeIndex].archetype.GetSharedComponents()) {
+				ComponentEventSpawner::instance().SharedComponentAdded(sharedComponent.first, e, sharedComponent.second, _eventmanager);
 			}
 #endif //ECS_NO_COMPONENT_EVENTS
 		}
@@ -244,6 +243,10 @@ namespace gleng {
 #ifndef ECS_NO_COMPONENT_EVENTS
 			for (std::pair<type_hash, size_t> component : _archetypes[idx.archetypeIndex].archetype.GetComponentTypes()) {
 				ComponentEventSpawner::instance().ComponentRemoved(component.first, e, _eventmanager);
+			}
+
+			for (std::pair<type_hash, void*> sharedComponent : _archetypes[idx.archetypeIndex].archetype.GetSharedComponents()) {
+				ComponentEventSpawner::instance().SharedComponentRemoved(sharedComponent.first, e, sharedComponent.second, _eventmanager);
 			}
 #endif //ECS_NO_COMPONENT_EVENTS
 
@@ -374,6 +377,21 @@ namespace gleng {
 					ComponentEventSpawner::instance().ComponentAdded(newC.first, e, _eventmanager);
 				}
 			}
+
+
+			auto &oldSharedComponents = _archetypes[oldBlock.archetypeIndex].archetype.GetSharedComponents();
+			auto &newSharedComponents = _archetypes[newBlock.archetypeIndex].archetype.GetSharedComponents();
+			for (auto oldC : oldSharedComponents) {
+				if (newSharedComponents.find(oldC.first) == newSharedComponents.end()) {
+					ComponentEventSpawner::instance().SharedComponentRemoved(oldC.first, e, oldC.second, _eventmanager);
+				}
+			}
+
+			for (auto newC : newSharedComponents) {
+				if (oldSharedComponents.find(newC.first) == oldSharedComponents.end()) {
+					ComponentEventSpawner::instance().SharedComponentAdded(newC.first, e, newC.second, _eventmanager);
+				}
+			}
 #endif //ECS_NO_COMPONENT_EVENTS
 		}
 
@@ -440,6 +458,10 @@ namespace gleng {
 				_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
 			}
 
+#ifndef ECS_NO_COMPONENT_EVENTS
+			ComponentEventSpawner::instance().SharedComponentAdded<T>(e, component, _eventmanager);
+#endif //ECS_NO_COMPONENT_EVENTS
+
 			_entityMap[e.ID] = newBlock;
 		}
 
@@ -468,6 +490,10 @@ namespace gleng {
 			if (removedEntity.ID != ENTITY_NULL_ID) {
 				_entityMap[removedEntity.ID].elementIndex = oldBlock.elementIndex;
 			}
+
+#ifndef ECS_NO_COMPONENT_EVENTS
+			ComponentEventSpawner::instance().SharedComponentRemoved<T>(e, GetArchetype(oldBlock).GetSharedComponent<T>(), _eventmanager);
+#endif //ECS_NO_COMPONENT_EVENTS
 
 			_entityMap[e.ID] = newBlock;
 		}
