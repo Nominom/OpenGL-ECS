@@ -69,6 +69,27 @@ public:
 	}
 };
 
+class BeforeWorkAfterWorkTestSystem : public IComponentSystem<TestComponent1> {
+
+public:
+
+	std::vector<int> types;
+
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
+		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
+		types.push_back(1);
+	}
+
+	void BeforeWork(double deltaTime) override{
+		types.push_back(0);
+	}
+
+	void AfterWork(double deltaTime) override {
+		types.push_back(2);
+	}
+
+};
+
 
 TEST(ComponentSystems, DoWork) {
 	World::Setup();
@@ -298,5 +319,58 @@ TEST(ComponentSystems, MultipleSystems) {
 	 }
  }
 
- //TODO Test BeforeWork & AfterWork
+
+ TEST(ComponentSystems, BeforeAfterWork) {
+
+	 World::Setup();
+	 EntityManager *entitymanager = World::GetEntityManager();
+	 ComponentManager *componentmanager = World::GetComponentManager();
+	 SystemManager *systemmanager = World::GetSystemManager();
+
+	 EntityArchetype archetype =
+		 EntityArchetype(ComponentType::Get<TestComponent1>());
+
+	 Entity e = entitymanager->CreateEntity(archetype);
+
+	 BeforeWorkAfterWorkTestSystem *system = new BeforeWorkAfterWorkTestSystem();
+
+	 systemmanager->RegisterSystem(system);
+	 
+	 systemmanager->Update(componentmanager, 1);
+
+	
+	 ASSERT_EQ(system->types.size(), 3);
+	 ASSERT_EQ(system->types[0], 0);
+	 ASSERT_EQ(system->types[1], 1);
+	 ASSERT_EQ(system->types[2], 2);
+ }
+
+
+ class TestISystem1 : public ISystem {
+ public:
+	 double totalDeltaTime = 0;
+
+
+	 void Update(double deltaTime) override {
+		 totalDeltaTime += deltaTime;
+	 }
+	
+ };
+
+
+ TEST(Systems, Update) {
+	 World::Setup();
+	 SystemManager *systemmanager = World::GetSystemManager();
+	 ComponentManager *componentmanager = World::GetComponentManager();
+
+
+	 TestISystem1 *system = new TestISystem1();
+
+	 systemmanager->RegisterSystem(system);
+
+	 systemmanager->Update(componentmanager, 1);
+
+	 ASSERT_DOUBLE_EQ(system->totalDeltaTime, 1);
+ }
+
  //TODO ISystem tests
