@@ -17,13 +17,13 @@ namespace gleng {
 		ComponentFilter filter;
 	public:
 		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
-			system->BeforeWork(deltaTime);
+			system->BeforeWork(deltaTime, world);
 			std::vector<ComponentMemoryBlock*> blocks = world.componentmanager->GetMemoryBlocks(filter);
 			for (ComponentMemoryBlock *block : blocks) {
 				ComponentDatablock<Args...> datablock(block);
 				system->DoWork(deltaTime, datablock);
 			}
-			system->AfterWork(deltaTime);
+			system->AfterWork(deltaTime, world);
 		}
 
 		inline ComponentSystemExecutor(IComponentSystem<Args...> *s) {
@@ -43,7 +43,7 @@ namespace gleng {
 		ComponentFilter filter;
 	public:
 		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
-			system->Update(deltaTime);
+			system->Update(deltaTime, world);
 		}
 
 		inline GenericSystemExecutor(ISystem *s) {

@@ -1,5 +1,6 @@
 #pragma once
 #include "componentmanager.h"
+#include "worldaccessor.h"
 
 namespace gleng {
 
