@@ -134,6 +134,7 @@
     <ClInclude Include="include\gleng\systemmanager.h" />
     <ClInclude Include="include\gleng\util.h" />
     <ClInclude Include="include\gleng\world.h" />
+    <ClInclude Include="include\gleng\worldaccessor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

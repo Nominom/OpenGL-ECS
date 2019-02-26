@@ -1,11 +1,12 @@
 #pragma once
 #include "system.h"
+#include "worldaccessor.h"
 
 namespace gleng {
 
 	class ISystemExecutor {
 	public:
-		virtual void ExecuteSystem(ComponentManager* componentManager, double deltaTime) = 0;
+		virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) = 0;
 		virtual ~ISystemExecutor() = default;
 	};
 
@@ -15,9 +16,9 @@ namespace gleng {
 		IComponentSystem<Args...> *system;
 		ComponentFilter filter;
 	public:
-		inline virtual void ExecuteSystem(ComponentManager* componentManager, double deltaTime) {
+		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
 			system->BeforeWork(deltaTime);
-			std::vector<ComponentMemoryBlock*> blocks = componentManager->GetMemoryBlocks(filter);
+			std::vector<ComponentMemoryBlock*> blocks = world.componentmanager->GetMemoryBlocks(filter);
 			for (ComponentMemoryBlock *block : blocks) {
 				ComponentDatablock<Args...> datablock(block);
 				system->DoWork(deltaTime, datablock);
@@ -41,7 +42,7 @@ namespace gleng {
 		ISystem *system;
 		ComponentFilter filter;
 	public:
-		inline virtual void ExecuteSystem(ComponentManager* componentManager, double deltaTime) {
+		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
 			system->Update(deltaTime);
 		}
 
@@ -68,9 +69,9 @@ namespace gleng {
 			systemExecutors.push_back(new GenericSystemExecutor(system));
 		}
 
-		inline void Update(ComponentManager* cm, double deltaTime) {
+		inline void Update(const WorldAccessor& world, double deltaTime) {
 			for (ISystemExecutor *system : systemExecutors) {
-				system->ExecuteSystem(cm, deltaTime);
+				system->ExecuteSystem(world, deltaTime);
 			}
 		}
 

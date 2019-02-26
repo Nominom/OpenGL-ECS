@@ -80,11 +80,11 @@ public:
 		types.push_back(1);
 	}
 
-	void BeforeWork(double deltaTime) override{
+	void BeforeWork(double deltaTime, const WorldAccessor& world) override{
 		types.push_back(0);
 	}
 
-	void AfterWork(double deltaTime) override {
+	void AfterWork(double deltaTime, const WorldAccessor& world) override {
 		types.push_back(2);
 	}
 
@@ -164,7 +164,7 @@ TEST(ComponentSystems, RegisterSystem) {
 	const int numUpdates = 10;
 
 	for (int i = 0; i < numUpdates; i++) {
-		systemmanager->Update(componentmanager, 0.5);
+		systemmanager->Update(World::GetWorldAccessor(), 0.5);
 	}
 
 	for (Entity e : arr) {
@@ -207,7 +207,7 @@ TEST(ComponentSystems, MultipleSystems) {
 	const int numUpdates = 10;
 
 	for (int i = 0; i < numUpdates; i++) {
-		systemmanager->Update(componentmanager, 0.5);
+		systemmanager->Update(World::GetWorldAccessor(), 0.5);
 	}
 
 	for (Entity e : arr12) {
@@ -248,7 +248,7 @@ TEST(ComponentSystems, MultipleSystems) {
 	const int numUpdates = 100;
 
 	for (int i = 0; i < numUpdates; i++) {
-		systemmanager->Update(componentmanager, 0.5);
+		systemmanager->Update(World::GetWorldAccessor(), 0.5);
 	}
 
 	for (Entity e : arr) {
@@ -299,7 +299,7 @@ TEST(ComponentSystems, MultipleSystems) {
 	 const int numUpdates = 10;
 
 	 for (int i = 0; i < numUpdates; i++) {
-		 systemmanager->Update(componentmanager, 0.5);
+		 systemmanager->Update(World::GetWorldAccessor(), 0.5);
 	 }
 
 	 for (Entity e : arr12) {
@@ -336,7 +336,7 @@ TEST(ComponentSystems, MultipleSystems) {
 
 	 systemmanager->RegisterSystem(system);
 	 
-	 systemmanager->Update(componentmanager, 1);
+	 systemmanager->Update(World::GetWorldAccessor(), 1);
 
 	
 	 ASSERT_EQ(system->types.size(), 3);
@@ -346,31 +346,41 @@ TEST(ComponentSystems, MultipleSystems) {
  }
 
 
- class TestISystem1 : public ISystem {
- public:
-	 double totalDeltaTime = 0;
+class TestISystem1 : public ISystem {
+public:
+	double totalDeltaTime = 0;
 
 
-	 void Update(double deltaTime) override {
-		 totalDeltaTime += deltaTime;
-	 }
+	void Update(double deltaTime, const WorldAccessor& world) override {
+		totalDeltaTime += deltaTime;
+	}
 	
- };
+};
+
+class TestISystem2 : public ISystem {
+public:
+	double totalDeltaTime = 0;
 
 
- TEST(Systems, Update) {
-	 World::Setup();
-	 SystemManager *systemmanager = World::GetSystemManager();
-	 ComponentManager *componentmanager = World::GetComponentManager();
+	void Update(double deltaTime, const WorldAccessor& world) override {
+		//TODO
+	}
+
+};
 
 
-	 TestISystem1 *system = new TestISystem1();
+TEST(Systems, Update) {
+	World::Setup();
+	SystemManager *systemmanager = World::GetSystemManager();
 
-	 systemmanager->RegisterSystem(system);
 
-	 systemmanager->Update(componentmanager, 1);
+	TestISystem1 *system = new TestISystem1();
 
-	 ASSERT_DOUBLE_EQ(system->totalDeltaTime, 1);
- }
+	systemmanager->RegisterSystem(system);
+
+	systemmanager->Update(World::GetWorldAccessor(), 1);
+
+	ASSERT_DOUBLE_EQ(system->totalDeltaTime, 1);
+}
 
  //TODO ISystem tests

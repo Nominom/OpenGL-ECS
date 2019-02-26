@@ -63,6 +63,9 @@
     <ClInclude Include="include\gleng\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\gleng\worldaccessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

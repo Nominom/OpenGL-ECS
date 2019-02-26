@@ -28,6 +28,10 @@ namespace gleng {
 			return &manager;
 		}
 
+		static WorldAccessor GetWorldAccessor() {
+			return WorldAccessor(GetEntityManager(), GetComponentManager(), GetEventManager());
+		}
+
 		static void Setup() {
 			GetEntityManager()->Clear();
 			GetComponentManager()->Clear();
