@@ -14,11 +14,11 @@ namespace gleng {
 	class ComponentSystemExecutor : public ISystemExecutor {
 	private:
 		IComponentSystem<Args...> *system;
-		ComponentFilter filter;
+		ComponentQuery query;
 	public:
 		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
 			system->BeforeWork(deltaTime, world);
-			std::vector<ComponentMemoryBlock*> blocks = world.componentmanager->GetMemoryBlocks(filter);
+			std::vector<ComponentMemoryBlock*> blocks = world.componentmanager->GetMemoryBlocks(query);
 			for (ComponentMemoryBlock *block : blocks) {
 				ComponentDatablock<Args...> datablock(block);
 				system->DoWork(deltaTime, datablock);
@@ -28,7 +28,7 @@ namespace gleng {
 
 		inline ComponentSystemExecutor(IComponentSystem<Args...> *s) {
 			this->system = s;
-			filter = s->GetFilter();
+			query = s->GetQuery();
 			//auto _ = { filter.Include<Args>()... };
 		}
 
@@ -40,7 +40,7 @@ namespace gleng {
 	class GenericSystemExecutor : public ISystemExecutor {
 	private:
 		ISystem *system;
-		ComponentFilter filter;
+
 	public:
 		inline virtual void ExecuteSystem(const WorldAccessor& world, double deltaTime) {
 			system->Update(deltaTime, world);

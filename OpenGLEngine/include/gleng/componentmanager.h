@@ -5,7 +5,7 @@
 #include "memoryblocks.h"
 #include "eventmanager.h"
 #include "componenteventspawner.h"
-#include "componentfilter.h"
+#include "componentquery.h"
 
 #ifndef ECS_NO_TSL
 #include "../tsl/robin_map.h"
@@ -259,8 +259,12 @@ namespace gleng {
 		}
 
 		inline bool IsEntityValid(const Entity& e) {
-			ArchetypeBlockIndex idx = FindBlockIndexFor(e);
-			return idx.valid;
+			if (e.ID < _entityMap.size()) {
+				ArchetypeBlockIndex idx = FindBlockIndexFor(e);
+				return idx.valid;
+			} else {
+				return false;
+			}
 		}
 
 		template<class T>
@@ -512,10 +516,10 @@ namespace gleng {
 			return FindArchetypeFor(e).archetype.HasSharedComponentType(ISharedComponent<T>::ComponentTypeID);
 		}
 
-		inline std::vector<ComponentMemoryBlock*> GetMemoryBlocks(const ComponentFilter &filter) {
+		inline std::vector<ComponentMemoryBlock*> GetMemoryBlocks(const ComponentQuery &query) {
 			std::vector<ComponentMemoryBlock*> result;
 			for (const EntityArchetypeBlock &atype : _archetypes) {
-				if (filter.Matches(atype.archetype)) {
+				if (query.Matches(atype.archetype)) {
 					for (ComponentMemoryBlock *block : atype.archetypeBlocks) {
 						result.push_back(block);
 					}

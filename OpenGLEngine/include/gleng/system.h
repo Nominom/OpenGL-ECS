@@ -1,6 +1,7 @@
 #pragma once
 #include "componentmanager.h"
 #include "worldaccessor.h"
+#include "componentquery.h"
 
 namespace gleng {
 
@@ -105,10 +106,8 @@ namespace gleng {
 
 
 
-		virtual inline ComponentFilter GetFilter() {
-			ComponentFilter filter;
-			auto _ = { filter.Include<Components>()... };
-			return filter;
+		virtual inline ComponentQuery GetQuery() {
+			return ComponentQueryBuilder().Include<Components...>().Build();
 		}
 	};
 

@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="componentextrastests.cpp" />
+    <ClCompile Include="componentquerytests.cpp" />
     <ClCompile Include="componenttests.cpp" />
     <ClCompile Include="entitytests.cpp" />
     <ClCompile Include="eventtests.cpp" />

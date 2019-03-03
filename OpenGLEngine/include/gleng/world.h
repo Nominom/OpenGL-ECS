@@ -3,6 +3,7 @@
 #include "componentmanager.h"
 #include "systemmanager.h"
 #include "eventmanager.h"
+#include "componentquery.h"
 
 namespace gleng {
 

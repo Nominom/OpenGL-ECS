@@ -1,55 +1,5 @@
 #include "pch.h"
 
-TEST(ComponentFilters, Filter) {
-
-	TestSharedComponent1 shared1;
-	TestSharedComponent2 shared2;
-
-	EntityArchetype archetype_all =
-		EntityArchetype(ComponentType::Get<TestComponent1>())
-		.AddComponent(ComponentType::Get<TestComponent2>())
-		.AddSharedComponent(&shared1)
-		.AddSharedComponent(&shared2);
-
-	EntityArchetype archetype_components =
-		EntityArchetype(ComponentType::Get<TestComponent1>())
-		.AddComponent(ComponentType::Get<TestComponent2>());
-
-	EntityArchetype archetype_sharedcomponents =
-		EntityArchetype()
-		.AddSharedComponent(&shared1)
-		.AddSharedComponent(&shared2);
-	
-	ComponentFilter filter1;
-	filter1.Include<TestComponent1>().Include<TestComponent2>()
-		.Include<TestSharedComponent1>().Include<TestSharedComponent2>();
-
-	ComponentFilter filter2;
-	filter2.Include<TestComponent1>();
-
-	ComponentFilter filter3;
-	filter3.Include<TestComponent2>().Exclude<TestSharedComponent1>();
-
-	ComponentFilter filter4;
-	filter4.Include<TestSharedComponent1>().Exclude<TestComponent1>();
-
-	ASSERT_TRUE(filter1.Matches(archetype_all));
-	ASSERT_FALSE(filter1.Matches(archetype_components));
-	ASSERT_FALSE(filter1.Matches(archetype_sharedcomponents));
-
-	ASSERT_TRUE(filter2.Matches(archetype_all));
-	ASSERT_TRUE(filter2.Matches(archetype_components));
-	ASSERT_FALSE(filter2.Matches(archetype_sharedcomponents));
-
-	ASSERT_FALSE(filter3.Matches(archetype_all));
-	ASSERT_TRUE(filter3.Matches(archetype_components));
-	ASSERT_FALSE(filter3.Matches(archetype_sharedcomponents));
-
-	ASSERT_FALSE(filter4.Matches(archetype_all));
-	ASSERT_FALSE(filter4.Matches(archetype_components));
-	ASSERT_TRUE(filter4.Matches(archetype_sharedcomponents));
-}
-
 TEST(ComponentDatablock, Components) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();

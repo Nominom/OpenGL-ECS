@@ -4,7 +4,7 @@
 
 class TestSystem : public IComponentSystem<TestComponent1, TestComponent2> {
 public:
-	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestComponent2> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestComponent2> &components) override {
 		ComponentDataIterator<TestComponent1> data1= components.Get<TestComponent1>();
 		ComponentDataIterator<TestComponent2> data2 = components.Get<TestComponent2>();
 		EntityIterator entities = components.GetEntities();
@@ -13,8 +13,6 @@ public:
 			data1[i].testValue++;
 			data2[i].testBigint++;
 			data2[i].testFloat += deltaTime;
-			data2.begin();
-			//data2.GetSharedComponent();
 			auto id = entities[i].ID;
 		}
 	}
@@ -23,7 +21,7 @@ public:
 
 class TestSystem2 : public IComponentSystem<TestComponent1> {
 public:
-	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) override {
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 
 		for (size_t i = 0; i < components.size(); i++) {
@@ -36,7 +34,7 @@ public:
 
 class TestSystem3 : public IComponentSystem<TestComponent1, TestSharedComponent1> {
 public:
-	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestSharedComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1, TestSharedComponent1> &components) override {
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 		ComponentDataIterator<TestSharedComponent1> data2 = components.Get<TestSharedComponent1>();
 
@@ -51,7 +49,7 @@ public:
 
 class TestSystem4 : public IComponentSystem<TestComponent1> {
 public:
-	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) override {
 
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 
@@ -60,11 +58,9 @@ public:
 		}
 	}
 
-	virtual inline ComponentFilter GetFilter() {
-		ComponentFilter filter;
-		filter.Include<TestComponent1>();
-		filter.Exclude<TestComponent2>();
-		filter.Exclude<TestSharedComponent2>();
+	virtual inline ComponentQuery GetQuery() override{
+		ComponentQuery filter = ComponentQueryBuilder().Include<TestComponent1>()
+			.Exclude<TestComponent2, TestSharedComponent2>().Build();
 		return filter;
 	}
 };
@@ -75,7 +71,7 @@ public:
 
 	std::vector<int> types;
 
-	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) {
+	virtual void DoWork(double deltaTime, const ComponentDatablock<TestComponent1> &components) override {
 		ComponentDataIterator<TestComponent1> data1 = components.Get<TestComponent1>();
 		types.push_back(1);
 	}
