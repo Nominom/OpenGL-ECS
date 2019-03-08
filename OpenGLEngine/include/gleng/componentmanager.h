@@ -6,6 +6,7 @@
 #include "eventmanager.h"
 #include "componenteventspawner.h"
 #include "componentquery.h"
+#include "componentdatablock.h"
 
 #ifndef ECS_NO_TSL
 #include "../tsl/robin_map.h"
@@ -516,16 +517,29 @@ namespace gleng {
 			return FindArchetypeFor(e).archetype.HasSharedComponentType(ISharedComponent<T>::ComponentTypeID);
 		}
 
-		inline std::vector<ComponentMemoryBlock*> GetMemoryBlocks(const ComponentQuery &query) {
-			std::vector<ComponentMemoryBlock*> result;
+		inline size_t GetMemoryBlocks(std::vector<ComponentMemoryBlock*> &out_memblocks, const ComponentQuery &query) const{
+			out_memblocks.clear();
 			for (const EntityArchetypeBlock &atype : _archetypes) {
 				if (query.Matches(atype.archetype)) {
 					for (ComponentMemoryBlock *block : atype.archetypeBlocks) {
-						result.push_back(block);
+						out_memblocks.push_back(block);
 					}
 				}
 			}
-			return result;
+			return out_memblocks.size();
+		}
+
+		template <class ...Components>
+		inline size_t GetComponentDataBlocks(std::vector<ComponentDatablock<Components...>> &out_datablocks, const ComponentQuery& query) const {
+			out_datablocks.clear();
+			for (const EntityArchetypeBlock &atype : _archetypes) {
+				if (query.Matches(atype.archetype)) {
+					for (ComponentMemoryBlock *block : atype.archetypeBlocks) {
+						out_datablocks.emplace_back(block);
+					}
+				}
+			}
+			return out_datablocks.size();
 		}
 
 		inline void Clear() {

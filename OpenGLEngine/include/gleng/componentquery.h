@@ -2,6 +2,7 @@
 #include <vector>
 #include "component.h"
 #include "entityarchetypes.h"
+#include "componentdatablock.h"
 
 namespace gleng {
 

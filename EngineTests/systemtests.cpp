@@ -355,11 +355,20 @@ public:
 
 class TestISystem2 : public ISystem {
 public:
-	double totalDeltaTime = 0;
-
+	std::vector<ComponentDatablock<TestComponent1, TestSharedComponent1>> data;
 
 	void Update(double deltaTime, const WorldAccessor& world) override {
-		//TODO
+		world.GetComponentData(data);
+
+		for(auto block : data) {
+			ComponentDataIterator<TestComponent1> testC1 = block.Get<TestComponent1>();
+			ComponentDataIterator<TestSharedComponent1> testSC1 = block.Get<TestSharedComponent1>();
+
+			size_t len = block.size();
+			for (size_t i = 0; i < len; i++) {
+				testC1[i].testValue++;
+			}
+		}
 	}
 
 };
@@ -379,4 +388,33 @@ TEST(Systems, Update) {
 	ASSERT_DOUBLE_EQ(system->totalDeltaTime, 1);
 }
 
- //TODO ISystem tests
+
+TEST(Systems, DataAccess) {
+
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+	ComponentManager *componentmanager = World::GetComponentManager();
+	SystemManager *systemmanager = World::GetSystemManager();
+
+	TestISystem2 *system = new TestISystem2();
+
+	systemmanager->RegisterSystem(system);
+
+	TestSharedComponent1 shared1;
+	shared1.testInt = 0;
+
+	EntityArchetype archetype = EntityArchetype::Create<TestComponent1>(&shared1);
+
+	const size_t numents = 1000;
+	const size_t numUpdates = 100000;
+
+	EntityArray arr = entitymanager->CreateEntities(numents, archetype);
+
+	for (size_t i = 0; i < numUpdates; ++i) {
+		systemmanager->Update(World::GetWorldAccessor(), 1);
+	}
+
+	for (Entity e : arr) {
+		ASSERT_EQ(componentmanager->GetComponent<TestComponent1>(e).testValue, numUpdates);
+	}
+}

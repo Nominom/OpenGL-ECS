@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\gleng\component.h" />
+    <ClInclude Include="include\gleng\componentdatablock.h" />
     <ClInclude Include="include\gleng\componenteventspawner.h" />
     <ClInclude Include="include\gleng\componentmanager.h" />
     <ClInclude Include="include\gleng\componentquery.h" />
