@@ -405,8 +405,8 @@ TEST(Systems, DataAccess) {
 
 	EntityArchetype archetype = EntityArchetype::Create<TestComponent1>(&shared1);
 
-	const size_t numents = 1000;
-	const size_t numUpdates = 100000;
+	const size_t numents = 10000;
+	const size_t numUpdates = 1000;
 
 	EntityArray arr = entitymanager->CreateEntities(numents, archetype);
 

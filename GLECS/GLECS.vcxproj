@@ -21,9 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{9DF08A35-5CA6-4E7D-962F-8105D14B2695}</ProjectGuid>
-    <RootNamespace>OpenGLEngine</RootNamespace>
+    <RootNamespace>glecs</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <ProjectName>OpenGLEngine</ProjectName>
+    <ProjectName>GLECS</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -118,24 +118,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\gleng\component.h" />
-    <ClInclude Include="include\gleng\componentdatablock.h" />
-    <ClInclude Include="include\gleng\componenteventspawner.h" />
-    <ClInclude Include="include\gleng\componentmanager.h" />
-    <ClInclude Include="include\gleng\componentquery.h" />
-    <ClInclude Include="include\gleng\entity.h" />
-    <ClInclude Include="include\gleng\entityarchetypes.h" />
-    <ClInclude Include="include\gleng\entitymanager.h" />
-    <ClInclude Include="include\gleng\eventlistener.h" />
-    <ClInclude Include="include\gleng\eventmanager.h" />
-    <ClInclude Include="include\gleng\events.h" />
-    <ClInclude Include="include\gleng\gleng.h" />
-    <ClInclude Include="include\gleng\memoryblocks.h" />
-    <ClInclude Include="include\gleng\system.h" />
-    <ClInclude Include="include\gleng\systemmanager.h" />
-    <ClInclude Include="include\gleng\util.h" />
-    <ClInclude Include="include\gleng\world.h" />
-    <ClInclude Include="include\gleng\worldaccessor.h" />
+    <ClInclude Include="include\glecs\component.h" />
+    <ClInclude Include="include\glecs\componentdatablock.h" />
+    <ClInclude Include="include\glecs\componenteventspawner.h" />
+    <ClInclude Include="include\glecs\componentmanager.h" />
+    <ClInclude Include="include\glecs\componentquery.h" />
+    <ClInclude Include="include\glecs\entity.h" />
+    <ClInclude Include="include\glecs\entityarchetypes.h" />
+    <ClInclude Include="include\glecs\entitymanager.h" />
+    <ClInclude Include="include\glecs\eventlistener.h" />
+    <ClInclude Include="include\glecs\eventmanager.h" />
+    <ClInclude Include="include\glecs\events.h" />
+    <ClInclude Include="include\glecs\gleng.h" />
+    <ClInclude Include="include\glecs\memoryblocks.h" />
+    <ClInclude Include="include\glecs\system.h" />
+    <ClInclude Include="include\glecs\systemmanager.h" />
+    <ClInclude Include="include\glecs\util.h" />
+    <ClInclude Include="include\glecs\world.h" />
+    <ClInclude Include="include\glecs\worldaccessor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

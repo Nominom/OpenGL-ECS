@@ -15,58 +15,58 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\gleng\component.h">
+    <ClInclude Include="include\glecs\gleng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\componenteventspawner.h">
+    <ClInclude Include="include\glecs\component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\componentmanager.h">
+    <ClInclude Include="include\glecs\componentdatablock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\entity.h">
+    <ClInclude Include="include\glecs\componenteventspawner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\entityarchetypes.h">
+    <ClInclude Include="include\glecs\componentmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\entitymanager.h">
+    <ClInclude Include="include\glecs\componentquery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\eventlistener.h">
+    <ClInclude Include="include\glecs\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\eventmanager.h">
+    <ClInclude Include="include\glecs\entityarchetypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\events.h">
+    <ClInclude Include="include\glecs\entitymanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\gleng.h">
+    <ClInclude Include="include\glecs\eventlistener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\memoryblocks.h">
+    <ClInclude Include="include\glecs\eventmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\system.h">
+    <ClInclude Include="include\glecs\events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\systemmanager.h">
+    <ClInclude Include="include\glecs\memoryblocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\util.h">
+    <ClInclude Include="include\glecs\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\world.h">
+    <ClInclude Include="include\glecs\systemmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\worldaccessor.h">
+    <ClInclude Include="include\glecs\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\componentquery.h">
+    <ClInclude Include="include\glecs\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\gleng\componentdatablock.h">
+    <ClInclude Include="include\glecs\worldaccessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
