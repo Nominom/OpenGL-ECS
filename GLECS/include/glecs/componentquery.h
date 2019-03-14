@@ -76,6 +76,14 @@ namespace gleng {
 				return query;
 			}
 		};
+
+		template <class Q>
+		struct IncludeType<Optional<Q>> {
+			static ComponentQuery& Add(ComponentQuery& query) {
+				return query;
+			}
+		};
+
 		template <class T>
 		struct ExcludeType {
 			template <class Q = T, std::enable_if_t<std::is_base_of<IComponent<Q>, Q>::value, int> = 0 >
@@ -92,6 +100,13 @@ namespace gleng {
 				query.types.insert(query.types.begin() + query.includes + query.excludes + query.shared_includes, type);
 				query.shared_excludes++;
 				return query;
+			}
+		};
+
+		template <class Q>
+		struct ExcludeType<Optional<Q>> {
+			static ComponentQuery& Add(ComponentQuery& query) {
+				static_assert(false, "ExludeType in componentquery should not be optional"); 
 			}
 		};
 

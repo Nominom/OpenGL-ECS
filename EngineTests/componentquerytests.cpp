@@ -4,7 +4,8 @@
 TEST(ComponentQueries, Build) {
 
 	ComponentQuery query =
-		ComponentQueryBuilder().Include<TestComponent1, TestSharedComponent1>()
+		ComponentQueryBuilder().Include<TestComponent1, TestSharedComponent1, 
+		Optional<TestSharedComponentWithDestructor>>()
 		.Exclude<TestSharedComponent2>().Exclude<TestComponent2>().Build();
 
 	ASSERT_EQ(query.types.size(), 4);

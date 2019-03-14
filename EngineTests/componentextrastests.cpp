@@ -35,6 +35,45 @@ TEST(ComponentDatablock, Components) {
 	}
 }
 
+TEST(ComponentDatablock, Optional) {
+	World::Setup();
+	EntityManager *entitymanager = World::GetEntityManager();
+
+
+	EntityArchetype archetype12 =
+		EntityArchetype(ComponentType::Get<TestComponent1>())
+		.AddComponent(ComponentType::Get<TestComponent2>());
+
+	EntityArray arr12 = entitymanager->CreateEntities(20);
+	ComponentMemoryBlock block12;
+	block12.Initialize(archetype12);
+	for (Entity e : arr12) {
+		block12.AddEntity(e);
+	}
+
+	EntityArchetype archetype1 = EntityArchetype(ComponentType::Get<TestComponent1>());
+	EntityArray arr1 = entitymanager->CreateEntities(20);
+	ComponentMemoryBlock block1;
+	block1.Initialize(archetype1);
+	for (Entity e : arr1) {
+		block1.AddEntity(e);
+	}
+
+	ComponentDatablock<TestComponent1, Optional<TestComponent2>> datablock12(&block12);
+	ComponentDatablock<TestComponent1, Optional<TestComponent2>> datablock1(&block1);
+
+	ASSERT_TRUE(datablock12.Get<Optional<TestComponent2>>().isAvailable);
+	ASSERT_FALSE(datablock1.Get<Optional<TestComponent2>>().isAvailable);
+
+	ASSERT_EQ(datablock12.Get<Optional<TestComponent2>>().len, 20);
+	ASSERT_EQ(datablock1.Get<Optional<TestComponent2>>().len, 0);
+
+	ASSERT_NE(datablock12.Get<Optional<TestComponent2>>().data, nullptr);
+	ASSERT_EQ(datablock1.Get<Optional<TestComponent2>>().data, nullptr);
+
+
+}
+
 TEST(ComponentDatablock, Entities) {
 	World::Setup();
 	EntityManager *entitymanager = World::GetEntityManager();

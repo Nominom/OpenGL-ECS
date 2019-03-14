@@ -6,12 +6,15 @@
 
 namespace gleng {
 
+	template <class T>
+	struct Optional{};
+
+
 	template <typename T, typename Enable = void>
 	struct ComponentDataIterator;
 
 	template <typename T>
 	struct ComponentDataIterator<T, typename std::enable_if<std::is_base_of<ISharedComponent<T>, T>::value>::type> {
-
 		T* const component;
 
 		inline ComponentDataIterator(ComponentMemoryBlock *block) : component(block->type.GetSharedComponent<T>()) {
@@ -41,6 +44,44 @@ namespace gleng {
 		inline T& operator [](size_t index) {
 			assert(index < len);
 			return data[index];
+		}
+	};
+
+	template <typename T>
+	struct ComponentDataIterator < Optional<T>, typename std::enable_if<std::is_base_of<IComponent<T>, T>::value>::type>{
+		bool isAvailable;
+		T* data;
+		size_t len;
+
+		inline ComponentDataIterator(ComponentMemoryBlock *block) {
+			CHECK_T_IS_COMPONENT;
+			if (block->type.HasComponentType(IComponent<T>::ComponentTypeID)) {
+				len = block->size();
+				data = block->GetComponentArray<T>();
+				isAvailable = true;
+			} else {
+				len = 0;
+				data = nullptr;
+				isAvailable = false;
+			}
+		}
+	};
+
+	template <typename T>
+	struct ComponentDataIterator < Optional<T>, typename std::enable_if<std::is_base_of<ISharedComponent<T>, T>::value>::type> {
+		bool isAvailable;
+		T* component;
+
+		inline ComponentDataIterator(ComponentMemoryBlock *block) {
+			CHECK_T_IS_SHARED_COMPONENT;
+
+			if (block->type.HasSharedComponentType(ISharedComponent<T>::ComponentTypeID)) {
+				component = block->type.GetSharedComponent<T>();
+				isAvailable = true;
+			} else {
+				component = nullptr;
+				isAvailable = false;
+			}
 		}
 	};
 
